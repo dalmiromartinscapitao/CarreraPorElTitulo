@@ -24,7 +24,13 @@ public class GameManager : MonoBehaviour //[cite: 2]
         tablero.Add(new CasilleroNormal(4, new List<int>())); //[cite: 2]
 
         // 3. Simular un Turno
-        EjecutarTurnoPrueba(); //[cite: 2]
+        // EjecutarTurnoPrueba(); //[cite: 2]
+    }
+
+    public void TirarDado()
+    {
+        int resultado = jugadorPrueba.LanzarDado();
+        Debug.Log($"El dado dio: {resultado}");
     }
 
     private void EjecutarTurnoPrueba() //[cite: 2]
