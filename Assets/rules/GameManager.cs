@@ -12,39 +12,71 @@ public class GameManager : MonoBehaviour
     // Indica qué jugador tiene el turno
     private int jugadorActual = 0;
 
-    // Referencia al objeto 3D de la ficha
+    // Referencia a la ficha visual
     public FichaVisual fichaVisual3D;
 
     private void Start()
     {
         Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
 
-        // Crear jugadores
         InicializarJugadores();
-
-        // Crear tablero
         InicializarTablero();
 
-        // Mostrar quién empieza
         MostrarJugadorActual();
     }
 
+    // --------------------------------------------------
+    // JUGADORES
+    // --------------------------------------------------
+
     private void InicializarJugadores()
     {
-        jugadores.Add(new Jugador(1, "Santi"));
+        jugadores.Add(new Jugador(1, "Palo"));
         jugadores.Add(new Jugador(2, "Aye"));
+        jugadores.Add(new Jugador(3, "Juan"));
+        jugadores.Add(new Jugador(4, "Dal"));
 
         Debug.Log($"Se crearon {jugadores.Count} jugadores.");
     }
 
+    // --------------------------------------------------
+    // TABLERO
+    // --------------------------------------------------
+
     private void InicializarTablero()
     {
-        tablero.Add(new CasilleroNormal(0, new List<int> { 1 }));
-        tablero.Add(new CasilleroNormal(1, new List<int> { 2 }));
-        tablero.Add(new CasilleroPregunta(2, new List<int> { 3 }));
-        tablero.Add(new CasilleroEspecial(3, new List<int> { 4 }));
-        tablero.Add(new CasilleroNormal(4, new List<int>()));
+        // Creamos los 28 casilleros.
+        // Los IDs coinciden con las posiciones del tablero visual:
+        // posición 0 = primer casillero
+        // posición 1 = segundo casillero
+        // ...
+        // posición 27 = casillero 28
+
+        for (int i = 0; i < 28; i++)
+        {
+            int siguiente = i + 1;
+
+            // El último casillero no tiene siguiente
+            if (i == 27)
+            {
+                tablero.Add(
+                    new CasilleroNormal(i, new List<int>())
+                );
+            }
+            else
+            {
+                tablero.Add(
+                    new CasilleroNormal(i, new List<int> { siguiente })
+                );
+            }
+        }
+
+        Debug.Log($"Se crearon {tablero.Count} casilleros.");
     }
+
+    // --------------------------------------------------
+    // TURNOS
+    // --------------------------------------------------
 
     private void MostrarJugadorActual()
     {
@@ -53,7 +85,6 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Es el turno de: {jugador.Nombre}");
     }
 
-    // Este método será llamado por el botón "TIRAR DADO"
     public void TirarDado()
     {
         Jugador jugador = jugadores[jugadorActual];
@@ -75,11 +106,10 @@ public class GameManager : MonoBehaviour
         jugador.Moverse(resultado);
 
         Debug.Log(
-            $"{jugador.Nombre} terminó su movimiento en el casillero {jugador.PosicionActualId}"
+            $"{jugador.Nombre} llegó a la posición {jugador.PosicionActualId}"
         );
 
-        // Por ahora, si tenemos una ficha visual conectada,
-        // la actualizamos
+        // Actualizar visualmente la ficha
         if (fichaVisual3D != null)
         {
             fichaVisual3D.ActualizarPosicionVisual(
@@ -105,9 +135,8 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning(
-                $"{jugador.Nombre} llegó a la posición " +
-                $"{jugador.PosicionActualId}, pero ese casillero " +
-                $"todavía no está creado en el tablero lógico."
+                $"No se encontró el casillero " +
+                $"{jugador.PosicionActualId}."
             );
         }
 
