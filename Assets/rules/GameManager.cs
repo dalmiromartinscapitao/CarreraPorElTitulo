@@ -1,59 +1,160 @@
-using System.Collections.Generic; //[cite: 2]
-using UnityEngine; //[cite: 2]
+using System.Collections.Generic;
+using UnityEngine;
 
-public class GameManager : MonoBehaviour //[cite: 2]
+public class GameManager : MonoBehaviour
 {
-    private List<CasilleroBase> tablero = new List<CasilleroBase>(); //[cite: 2]
-    private Jugador jugadorPrueba; //[cite: 2]
+    // Lista lógica de casilleros
+    private List<CasilleroBase> tablero = new List<CasilleroBase>();
 
-    // Referencia al script del objeto 3D que se moverá visualmente
+    // Lista de jugadores
+    private List<Jugador> jugadores = new List<Jugador>();
+
+    // Indica qué jugador tiene el turno
+    private int jugadorActual = 0;
+
+    // Referencia a la ficha visual
     public FichaVisual fichaVisual3D;
 
-    private void Start() //[cite: 2]
+    private void Start()
     {
-        Debug.Log("--- INICIANDO SIMULACIÓN DEL JUEGO DE LA OCA ---"); //[cite: 2]
+        Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
 
-        // 1. Instanciar Jugador
-        jugadorPrueba = new Jugador(1, "Santi"); //[cite: 2]
+        InicializarJugadores();
+        InicializarTablero();
 
-        // 2. Construir un tablero básico de prueba (IDs del 0 al 4)
-        tablero.Add(new CasilleroNormal(0, new List<int> { 1 })); //[cite: 2]
-        tablero.Add(new CasilleroNormal(1, new List<int> { 2 })); //[cite: 2]
-        tablero.Add(new CasilleroPregunta(2, new List<int> { 3 })); //[cite: 2]
-        tablero.Add(new CasilleroEspecial(3, new List<int> { 4 })); //[cite: 2]
-        tablero.Add(new CasilleroNormal(4, new List<int>())); //[cite: 2]
-
-        // 3. Simular un Turno
-        EjecutarTurnoPrueba(); //[cite: 2]
+        MostrarJugadorActual();
     }
 
-    private void EjecutarTurnoPrueba() //[cite: 2]
+    // --------------------------------------------------
+    // JUGADORES
+    // --------------------------------------------------
+
+    private void InicializarJugadores()
     {
-        // A. Lanzar Dado
-        int dado = jugadorPrueba.LanzarDado(); //[cite: 2]
+        jugadores.Add(new Jugador(1, "Palo"));
+        jugadores.Add(new Jugador(2, "Aye"));
+        jugadores.Add(new Jugador(3, "Juan"));
+        jugadores.Add(new Jugador(4, "Dal"));
 
-        // B. Mover al jugador según el dado
-        jugadorPrueba.Moverse(dado); //[cite: 2]
+        Debug.Log($"Se crearon {jugadores.Count} jugadores.");
+    }
 
-        // NUEVO: Sincronizar la posición del modelo 3D con la posición lógica del jugador
+    // --------------------------------------------------
+    // TABLERO
+    // --------------------------------------------------
+
+    private void InicializarTablero()
+    {
+        // Creamos los 28 casilleros.
+        // Los IDs coinciden con las posiciones del tablero visual:
+        // posición 0 = primer casillero
+        // posición 1 = segundo casillero
+        // ...
+        // posición 27 = casillero 28
+
+        for (int i = 0; i < 28; i++)
+        {
+            int siguiente = i + 1;
+
+            // El último casillero no tiene siguiente
+            if (i == 27)
+            {
+                tablero.Add(
+                    new CasilleroNormal(i, new List<int>())
+                );
+            }
+            else
+            {
+                tablero.Add(
+                    new CasilleroNormal(i, new List<int> { siguiente })
+                );
+            }
+        }
+
+        Debug.Log($"Se crearon {tablero.Count} casilleros.");
+    }
+
+    // --------------------------------------------------
+    // TURNOS
+    // --------------------------------------------------
+
+    private void MostrarJugadorActual()
+    {
+        Jugador jugador = jugadores[jugadorActual];
+
+        Debug.Log($"Es el turno de: {jugador.Nombre}");
+    }
+
+    public void TirarDado()
+    {
+        Jugador jugador = jugadores[jugadorActual];
+
+        Debug.Log($"Es el turno de {jugador.Nombre}");
+
+        int resultado = jugador.LanzarDado();
+
+        Debug.Log($"{jugador.Nombre} sacó {resultado}");
+
+        // Si obtuvo 0, significa que estaba penalizado
+        if (resultado <= 0)
+        {
+            SiguienteTurno();
+            return;
+        }
+
+        // Mover al jugador
+        jugador.Moverse(resultado);
+
+        Debug.Log(
+            $"{jugador.Nombre} llegó a la posición {jugador.PosicionActualId}"
+        );
+
+        // Actualizar visualmente la ficha
         if (fichaVisual3D != null)
         {
-            fichaVisual3D.ActualizarPosicionVisual(jugadorPrueba.PosicionActualId);
+            fichaVisual3D.ActualizarPosicionVisual(
+                jugador.PosicionActualId
+            );
         }
 
-        // C. Buscar la casilla en la que cayó
-        CasilleroBase casilleroActual = tablero.Find(c => c.Id == jugadorPrueba.PosicionActualId); //[cite: 2]
+        // Buscar el casillero donde cayó
+        CasilleroBase casilleroActual =
+            tablero.Find(c => c.Id == jugador.PosicionActualId);
 
-        if (casilleroActual != null) //[cite: 2]
+        if (casilleroActual != null)
         {
-            Debug.Log($"El jugador cayó en la Casilla ID: {casilleroActual.Id} (Tipo: {casilleroActual.Tipo})"); //[cite: 2]
-            
-            // D. Ejecutar la lógica de la casilla
-            casilleroActual.EjecutarEfecto(jugadorPrueba); //[cite: 2]
+            Debug.Log(
+                $"{jugador.Nombre} cayó en el casillero " +
+                $"{casilleroActual.Id} " +
+                $"(Tipo: {casilleroActual.Tipo})"
+            );
+
+            // Ejecutar el efecto del casillero
+            casilleroActual.EjecutarEfecto(jugador);
         }
-        else //[cite: 2]
+        else
         {
-            Debug.LogWarning($"El jugador avanzó a la posición {jugadorPrueba.PosicionActualId}, pero supera el límite del tablero."); //[cite: 2]
+            Debug.LogWarning(
+                $"No se encontró el casillero " +
+                $"{jugador.PosicionActualId}."
+            );
         }
+
+        // Termina el turno
+        SiguienteTurno();
+    }
+
+    private void SiguienteTurno()
+    {
+        jugadorActual++;
+
+        // Si llegamos al final de la lista,
+        // volvemos al primer jugador
+        if (jugadorActual >= jugadores.Count)
+        {
+            jugadorActual = 0;
+        }
+
+        MostrarJugadorActual();
     }
 }
