@@ -122,6 +122,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &50951857 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9008088813552355154, guid: c68d3e76cf889d4409588dc3172ba084, type: 3}
+  m_PrefabInstance: {fileID: 211276513}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &50951862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50951857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7425326daaaa27043a67fd040dd6c1db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  posiciones:
+  - {x: 4.371, y: 0.328, z: 4.375}
+  - {x: 4.371, y: 0.328, z: 3.053}
+  - {x: 4.371, y: 0.328, z: 1.848}
+  - {x: 4.371, y: 0.328, z: 0.582}
+  - {x: 4.371, y: 0.328, z: -0.62}
+  - {x: 4.371, y: 0.328, z: -1.92}
+  - {x: 4.371, y: 0.328, z: -3.18}
+  - {x: 4.371, y: 0.328, z: -4.44}
+  - {x: 3.12, y: 0.328, z: -4.44}
+  - {x: 1.82, y: 0.328, z: -4.44}
+  - {x: 0.62, y: 0.328, z: -4.44}
+  - {x: -0.69, y: 0.328, z: -4.44}
+  - {x: -1.92, y: 0.328, z: -4.44}
+  - {x: -3.18, y: 0.328, z: -4.44}
+  - {x: -4.37, y: 0.328, z: -4.44}
+  - {x: -4.37, y: 0.328, z: -3.14}
+  - {x: -4.37, y: 0.328, z: -3.14}
+  - {x: -4.37, y: 0.328, z: -0.66}
+  - {x: -4.37, y: 0.328, z: 0.61}
+  - {x: -4.37, y: 0.328, z: 1.83}
+  - {x: -4.37, y: 0.328, z: 3.07}
+  - {x: -4.37, y: 0.328, z: 4.27}
+  - {x: -3.13, y: 0.328, z: 4.27}
+  - {x: -1.93, y: 0.328, z: 4.27}
+  - {x: -0.65, y: 0.328, z: 4.27}
+  - {x: 0.59, y: 0.328, z: 4.27}
+  - {x: 1.85, y: 0.328, z: 4.27}
+  - {x: 3.08, y: 0.328, z: 4.27}
 --- !u!1001 &211276513
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -177,8 +223,84 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9008088813552355154, guid: c68d3e76cf889d4409588dc3172ba084, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 50951862}
   m_SourcePrefab: {fileID: 100100000, guid: c68d3e76cf889d4409588dc3172ba084, type: 3}
+--- !u!1 &544553126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 544553128}
+  - component: {fileID: 544553127}
+  m_Layer: 0
+  m_Name: MapaCasilleros
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &544553127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544553126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7425326daaaa27043a67fd040dd6c1db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  posiciones:
+  - {x: 4.371, y: 0.328, z: 4.375}
+  - {x: 4.371, y: 0.328, z: 3.053}
+  - {x: 4.371, y: 0.328, z: 1.848}
+  - {x: 4.371, y: 0.328, z: 0.582}
+  - {x: 4.371, y: 0.328, z: -0.62}
+  - {x: 4.371, y: 0.328, z: -1.92}
+  - {x: 4.371, y: 0.328, z: -3.18}
+  - {x: 4.371, y: 0.328, z: -4.44}
+  - {x: 3.12, y: 0.328, z: -4.44}
+  - {x: 1.82, y: 0.328, z: -4.44}
+  - {x: 0.62, y: 0.328, z: -4.44}
+  - {x: -0.69, y: 0.328, z: -4.44}
+  - {x: -1.92, y: 0.328, z: -4.44}
+  - {x: -3.18, y: 0.328, z: -4.44}
+  - {x: -4.37, y: 0.328, z: -4.44}
+  - {x: -4.37, y: 0.328, z: -3.14}
+  - {x: -4.37, y: 0.328, z: -3.14}
+  - {x: -4.37, y: 0.328, z: -0.66}
+  - {x: -4.37, y: 0.328, z: 0.61}
+  - {x: -4.37, y: 0.328, z: 1.83}
+  - {x: -4.37, y: 0.328, z: 3.07}
+  - {x: -4.37, y: 0.328, z: 4.27}
+  - {x: -3.13, y: 0.328, z: 4.27}
+  - {x: -1.93, y: 0.328, z: 4.27}
+  - {x: -0.65, y: 0.328, z: 4.27}
+  - {x: 0.59, y: 0.328, z: 4.27}
+  - {x: 1.85, y: 0.328, z: 4.27}
+  - {x: 3.08, y: 0.328, z: 4.27}
+--- !u!4 &544553128
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544553126}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.13847347, y: -0.7971372, z: 0.41952536}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &890271763
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,6 +579,7 @@ GameObject:
   - component: {fileID: 1283801065}
   - component: {fileID: 1283801064}
   - component: {fileID: 1283801063}
+  - component: {fileID: 1283801066}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -538,6 +661,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 20.305, y: 0, z: 0}
+--- !u!114 &1283801066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283801062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5cf3af1ede97f4cb76486c6d6b3756, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetivo: {fileID: 1584222822}
+  offset: {x: 0, y: 5, z: -7}
+  velocidadSuavizado: 5
 --- !u!1 &1584222815 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0d6c02dfc89f42a498715d025e66c268, type: 3}
@@ -555,8 +693,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0e72a8ec673a0f4bbd52df77b6bfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanciaPorCasillero: 2
   velocidadMovimiento: 5
+--- !u!4 &1584222822 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d6c02dfc89f42a498715d025e66c268, type: 3}
+  m_PrefabInstance: {fileID: 1798887316}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1646709338
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,6 +833,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fichaVisual3D: {fileID: 1584222819}
+  mapaCasilleros: {fileID: 544553127}
 --- !u!4 &1653040335
 Transform:
   m_ObjectHideFlags: 0
@@ -1230,3 +1373,4 @@ SceneRoots:
   - {fileID: 1653040335}
   - {fileID: 1798887316}
   - {fileID: 211276513}
+  - {fileID: 544553128}

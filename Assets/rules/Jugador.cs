@@ -37,17 +37,23 @@ public class Jugador
         return resultado;
     }
 
-    // Actualiza la posición del jugador sumando el resultado del dado
-    public void Moverse(int casillerosAMover)
+   public void Moverse(int casillerosAMover, int limiteTablero)
     {
         if (casillerosAMover <= 0) return;
 
         PosicionActualId += casillerosAMover;
+        
+        // Evitar que la posición supere la meta
+        if(PosicionActualId > limiteTablero)
+        {
+            PosicionActualId = limiteTablero;
+        }
+
         Estado = $"En movimiento a casillero {PosicionActualId}";
         Debug.Log($"[Movimiento] {Nombre} avanza {casillerosAMover} casilleros. Nueva posición ID: {PosicionActualId}");
     }
 
-    // Permite mover al jugador de forma directa o instantánea (para efectos especiales o castigos)
+  
     public void MoverInstantanio(int deltaCasilleros)
     {
         PosicionActualId += deltaCasilleros;

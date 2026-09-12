@@ -3,27 +3,47 @@ using System.Collections;
 
 public class FichaVisual : MonoBehaviour
 {
-    [Tooltip("Distancia en el eje X entre cada casillero")]
-    public float distanciaPorCasillero = 2.0f; 
     public float velocidadMovimiento = 5.0f;
+    
+    // Variable pública que indica en qué casillero físico está el peón
+    public int PosicionActualVisual { get; private set; } = 0; 
 
-    // Recibe el ID de la posición lógica del jugador
-    public void ActualizarPosicionVisual(int nuevaPosicionId)
+    // Recibe el ID de destino lógico y el mapa completo de posiciones 3D
+    public void MoverACasillero(int idDestino, Vector3[] mapaPosiciones)
     {
-        // Calcula la nueva posición en X, manteniendo la Y y Z originales
-        float nuevaPosX = nuevaPosicionId * distanciaPorCasillero;
-        Vector3 destino = new Vector3(nuevaPosX, transform.position.y, transform.position.z);
-        
         StopAllCoroutines();
-        StartCoroutine(MoverSuave(destino));
+        StartCoroutine(MoverCasilleroACasillero(idDestino, mapaPosiciones));
     }
 
-    private IEnumerator MoverSuave(Vector3 destino)
+    private IEnumerator MoverCasilleroACasillero(int idDestino, Vector3[] posiciones)
     {
-        while (Vector3.Distance(transform.position, destino) > 0.01f)
+        // Limita el destino al tamaño máximo del arreglo para evitar errores
+        idDestino = Mathf.Clamp(idDestino, 0, posiciones.Length - 1);
+
+        // Avanzar casillero por casillero
+        while (PosicionActualVisual < idDestino)
         {
-            transform.position = Vector3.MoveTowards(transform.position, destino, velocidadMovimiento * Time.deltaTime);
-            yield return null;
+            PosicionActualVisual++;
+            Vector3 destino = posiciones[PosicionActualVisual];
+            
+            while (Vector3.Distance(transform.position, destino) > 0.01f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, destino, velocidadMovimiento * Time.deltaTime);
+                yield return null;
+            }
+        }
+        
+        // Retroceder casillero por casillero (en caso de penalizaciones)
+        while (PosicionActualVisual > idDestino)
+        {
+            PosicionActualVisual--;
+            Vector3 destino = posiciones[PosicionActualVisual];
+            
+            while (Vector3.Distance(transform.position, destino) > 0.01f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, destino, velocidadMovimiento * Time.deltaTime);
+                yield return null;
+            }
         }
     }
 }
