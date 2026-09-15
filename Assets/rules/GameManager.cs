@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
         
-        // Evita que el juego colapse si olvidas asignar el script en el Inspector
         if (mapaCasilleros == null)
         {
             Debug.LogError("Error: Falta asignar 'Mapa Casilleros' en el Inspector.");
@@ -24,7 +23,6 @@ public class GameManager : MonoBehaviour
         InicializarJugadores();
         InicializarTablero();
 
-        // Obliga a la ficha visual a iniciar en la coordenada 0 (Casillero 1)
         if (fichaVisual3D != null && mapaCasilleros.posiciones.Length > 0)
         {
             fichaVisual3D.transform.position = mapaCasilleros.posiciones[0];
