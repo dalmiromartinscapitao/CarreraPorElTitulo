@@ -69,6 +69,79 @@
       "texto": "¿Qué significa NPC en videojuegos?",
       "opciones": ["Non-Playable Character", "New Player Controller", "Next Playable Character", "Normal Player Code"],
       "indiceCorrecta": 0
-    }
+    },
+    {
+    "texto": "¿Quién creó en 1931 el 'Baffle Ball'?",
+    "opciones": ["David Gottlieb", "Ralph Baer", "Nolan Bushnell", "Harry Mabs"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿En qué universidad estudiaban los creadores del juego SpaceWar!",
+    "opciones": ["Harvard", "Stanford", "MIT", "Princeton"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿Cómo se llamó la famosa empresa fundada por Nolan Bushnell y Ted Dabney?",
+    "opciones": ["Nintendo", "Atari", "Sega", "Bally"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿Cuál fue el exitoso juego de arcade sobre tenis de mesa creado por Atari en 1972?",
+    "opciones": ["Pong", "SpaceWar!", "Computer Space", "Tetris"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Qué inventó Harry Mabs que salvó a la industria del pinball?",
+    "opciones": ["El tilt", "Los flippers", "El monedero", "Las luces LED"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿Cómo se llamaba la primera computadora científica que funcionó en Argentina?",
+    "opciones": ["Clementina", "Matilda", "Eniac", "Clemendin"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Cómo ideó Toru Iwatani la forma de Pac-Man?",
+    "opciones": [ "Mirando un fantasma", "Comiendo una hamburguesa", "Viendo un reloj circular", "Viendo una pizza"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué criatura explota en Minecraft?",
+    "opciones": ["Zombie", "Creeper", "Esqueleto", "Enderman"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿De qué color es Sonic?",
+    "opciones": ["Rojo", "Verde", "Amarillo", "Azul"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué come Pac-Man en el laberinto?",
+    "opciones": ["Monedas", "Estrellas", "Puntos", "Hongos"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿Cómo se llaman los personajes jugables en League of Legends?",
+    "opciones": ["Campeones", "Héroes", "Leyendas", "Guerreros"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Cómo se llama la moneda virtual de Roblox?",
+    "opciones": ["V-Bucks", "Monedas", "Gemas","Robux"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué tipo de juego es Valorant?",
+    "opciones": ["Battle Royale", "Deportes","Shooter táctico",  "Estrategia"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿En qué ciudad ficticia se desarrolla GTA V?",
+    "opciones": ["Liberty City", "Vice City", "Los Santos", "San Fierro"],
+    "indiceCorrecta": 2
+  }
+
+
+
   ]
 }
