@@ -95,13 +95,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Movimiento lógico
-        jugador.Moverse(resultado, tablero.Count - 1);
+        // Guardamos la posición antes de moverse para calcular si da la vuelta
+        int posicionAnterior = jugador.PosicionActualId;
 
-        // Movimiento visual leyendo el arreglo de posiciones
+        // Movimiento lógico
+        jugador.Moverse(resultado, tablero.Count);
+
+        // NUEVO: Evaluar si el jugador cruzó o cayó en la línea de meta (dio una vuelta completa)
+        if (posicionAnterior + resultado >= tablero.Count)
+        {
+            Debug.Log($"[Tablero] ¡{jugador.Nombre} ha completado una vuelta al tablero!");
+            EvaluarCambioDeRondaActual(); 
+        }
+
+        // Movimiento visual: Le pasamos los pasos del dado, NO la posición final
         if (fichaVisual3D != null)
         {
-            fichaVisual3D.MoverACasillero(jugador.PosicionActualId, mapaCasilleros.posiciones);
+            fichaVisual3D.MoverAdelante(resultado, mapaCasilleros.posiciones);
         }
 
         CasilleroBase casilleroActual = tablero.Find(c => c.Id == jugador.PosicionActualId);
@@ -111,6 +121,25 @@ public class GameManager : MonoBehaviour
         }
 
         SiguienteTurno();
+    }
+
+    // NUEVO: Método público para evaluar si el jugador actual cumple con el >70% y pasa de ronda
+    public void EvaluarCambioDeRondaActual()
+    {
+        if (jugadores.Count == 0) return;
+
+        Jugador jugador = jugadores[jugadorActual];
+        bool logroAvanzar = jugador.IntentarAvanzarDeRonda();
+
+        if (logroAvanzar)
+        {
+            Debug.Log($"[GameManager] ¡{jugador.Nombre} ha avanzado con éxito a la Ronda {jugador.RondaActual}!");
+            // Aquí puedes agregar lógica adicional de cambio de nivel o reinicio visual si lo deseas
+        }
+        else
+        {
+            Debug.Log($"[GameManager] {jugador.Nombre} aún no cumple con el porcentaje necesario para cambiar de ronda.");
+        }
     }
 
     private void SiguienteTurno()

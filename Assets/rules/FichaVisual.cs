@@ -4,39 +4,27 @@ using System.Collections;
 public class FichaVisual : MonoBehaviour
 {
     public float velocidadMovimiento = 5.0f;
-    
-    // Variable pública que indica en qué casillero físico está el peón
     public int PosicionActualVisual { get; private set; } = 0; 
 
-    // Recibe el ID de destino lógico y el mapa completo de posiciones 3D
-    public void MoverACasillero(int idDestino, Vector3[] mapaPosiciones)
+    // NUEVO: Recibe la cantidad de pasos (el resultado del dado) en lugar del ID destino
+    public void MoverAdelante(int pasos, Vector3[] posiciones)
     {
         StopAllCoroutines();
-        StartCoroutine(MoverCasilleroACasillero(idDestino, mapaPosiciones));
+        StartCoroutine(CorrutinaMoverAdelante(pasos, posiciones));
     }
 
-    private IEnumerator MoverCasilleroACasillero(int idDestino, Vector3[] posiciones)
+    private IEnumerator CorrutinaMoverAdelante(int pasos, Vector3[] posiciones)
     {
-        // Limita el destino al tamaño máximo del arreglo para evitar errores
-        idDestino = Mathf.Clamp(idDestino, 0, posiciones.Length - 1);
-
-        // Avanzar casillero por casillero
-        while (PosicionActualVisual < idDestino)
+        for (int i = 0; i < pasos; i++)
         {
             PosicionActualVisual++;
-            Vector3 destino = posiciones[PosicionActualVisual];
             
-            while (Vector3.Distance(transform.position, destino) > 0.01f)
+            // Si la ficha visual llega al final del mapa, reinicia a 0 para dar la vuelta hacia adelante
+            if (PosicionActualVisual >= posiciones.Length)
             {
-                transform.position = Vector3.MoveTowards(transform.position, destino, velocidadMovimiento * Time.deltaTime);
-                yield return null;
+                PosicionActualVisual = 0;
             }
-        }
-        
-        // Retroceder casillero por casillero (en caso de penalizaciones)
-        while (PosicionActualVisual > idDestino)
-        {
-            PosicionActualVisual--;
+
             Vector3 destino = posiciones[PosicionActualVisual];
             
             while (Vector3.Distance(transform.position, destino) > 0.01f)
