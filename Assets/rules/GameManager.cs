@@ -3,76 +3,80 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instancia;
+
     private List<CasilleroBase> tablero = new List<CasilleroBase>();
     private List<Jugador> jugadores = new List<Jugador>();
     private int jugadorActual = 0;
+    
+    public bool EsperandoRespuesta { get; private set; } = false;
 
-    public FichaVisual fichaVisual3D;
-    public Casilleros mapaCasilleros; 
+    [Header("Fichas de Jugadores (Asignar 4)")]
+    public FichaVisual[] fichasVisuales3D; // Cambiado a un Arreglo (Array)
+
+    [Header("Configuración del Tablero")]
+    public Transform contenedorCasillas; 
+    private Vector3[] rutaPosiciones;    
+
+    private void Awake()
+    {
+        Instancia = this;
+    }
 
     private void Start()
     {
         Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
         
-        if (mapaCasilleros == null)
-        {
-            Debug.LogError("Error: Falta asignar 'Mapa Casilleros' en el Inspector.");
-            return;
-        }
+        if (contenedorCasillas == null) return;
 
+        ObtenerRutaDesdeContenedor();
         InicializarJugadores();
         InicializarTablero();
 
-        if (fichaVisual3D != null && mapaCasilleros.posiciones.Length > 0)
+        // Colocar las 4 fichas en la salida sumando el offset de cada una
+        for (int i = 0; i < fichasVisuales3D.Length; i++)
         {
-            fichaVisual3D.transform.position = mapaCasilleros.posiciones[0];
+            if (fichasVisuales3D[i] != null && rutaPosiciones.Length > 0)
+            {
+                fichasVisuales3D[i].transform.position = rutaPosiciones[0] + fichasVisuales3D[i].offsetFicha;
+            }
         }
 
         MostrarJugadorActual();
     }
 
+    private void ObtenerRutaDesdeContenedor()
+    {
+        int cantidad = contenedorCasillas.childCount;
+        rutaPosiciones = new Vector3[cantidad];
+        for (int i = 0; i < cantidad; i++)
+        {
+            rutaPosiciones[i] = contenedorCasillas.GetChild(i).position;
+        }
+    }
+
     private void InicializarJugadores()
     {
-        // Se deja un solo jugador para coincidir con la única ficha visual
-        jugadores.Add(new Jugador(1, "Palo"));
+        // Añadimos a los 4 jugadores
+        jugadores.Add(new Jugador(1, "Jugador Rojo"));
+        jugadores.Add(new Jugador(2, "Jugador Azul"));
+        jugadores.Add(new Jugador(3, "Jugador Verde"));
+        jugadores.Add(new Jugador(4, "Jugador Amarillo"));
     }
 
     private void InicializarTablero()
     {
-        int cantidadCasilleros = mapaCasilleros.posiciones.Length;
-
+        int cantidadCasilleros = rutaPosiciones.Length;
         for (int i = 0; i < cantidadCasilleros; i++)
         {
             int siguiente = i + 1;
+            List<int> siguientesIds = (i == cantidadCasilleros - 1) ? new List<int>() : new List<int> { siguiente };
 
-            // Determinar si es el último casillero para no asignarle un siguiente
-            List<int> siguientesIds = (i == cantidadCasilleros - 1) 
-                ? new List<int>() 
-                : new List<int> { siguiente };
-
-            // Forzar que el inicio y el final siempre sean normales
             if (i == 0 || i == cantidadCasilleros - 1)
-            {
                 tablero.Add(new CasilleroNormal(i, siguientesIds));
-                continue;
-            }
-
-            // Distribuir los casilleros por el tablero
-            if (i % 3 == 0) 
-            {
-                // Cada 3 espacios, una pregunta
-                tablero.Add(new CasilleroPregunta(i, siguientesIds));
-            }
-            else if (i % 5 == 0) 
-            {
-                // Cada 5 espacios, un evento especial
-                tablero.Add(new CasilleroEspecial(i, siguientesIds));
-            }
-            else 
-            {
-                // El resto son normales
-                tablero.Add(new CasilleroNormal(i, siguientesIds));
-            }
+            else if (i % 3 == 0) tablero.Add(new CasilleroPregunta(i, siguientesIds));
+            else if (i % 5 == 0) tablero.Add(new CasilleroEspecial(i, siguientesIds));
+            else tablero.Add(new CasilleroNormal(i, siguientesIds));
         }
     }
 
@@ -84,7 +88,7 @@ public class GameManager : MonoBehaviour
 
     public void TirarDado()
     {
-        if (mapaCasilleros == null) return;
+        if (contenedorCasillas == null || EsperandoRespuesta) return;
 
         Jugador jugador = jugadores[jugadorActual];
         int resultado = jugador.LanzarDado();
@@ -95,51 +99,47 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Guardamos la posición antes de moverse para calcular si da la vuelta
         int posicionAnterior = jugador.PosicionActualId;
-
-        // Movimiento lógico
         jugador.Moverse(resultado, tablero.Count);
 
-        // NUEVO: Evaluar si el jugador cruzó o cayó en la línea de meta (dio una vuelta completa)
         if (posicionAnterior + resultado >= tablero.Count)
         {
-            Debug.Log($"[Tablero] ¡{jugador.Nombre} ha completado una vuelta al tablero!");
             EvaluarCambioDeRondaActual(); 
         }
 
-        // Movimiento visual: Le pasamos los pasos del dado, NO la posición final
-        if (fichaVisual3D != null)
+        // Mover solo la ficha visual que corresponde al jugador de este turno
+        if (jugadorActual < fichasVisuales3D.Length && fichasVisuales3D[jugadorActual] != null)
         {
-            fichaVisual3D.MoverAdelante(resultado, mapaCasilleros.posiciones);
+            fichasVisuales3D[jugadorActual].MoverAdelante(resultado, rutaPosiciones);
         }
 
         CasilleroBase casilleroActual = tablero.Find(c => c.Id == jugador.PosicionActualId);
         if (casilleroActual != null)
         {
             casilleroActual.EjecutarEfecto(jugador);
+            
+            if (casilleroActual.Tipo == TipoCasillero.Pregunta)
+            {
+                EsperandoRespuesta = true; 
+                return; 
+            }
         }
 
         SiguienteTurno();
     }
 
-    // NUEVO: Método público para evaluar si el jugador actual cumple con el >70% y pasa de ronda
+    public void ReanudarTurno()
+    {
+        EsperandoRespuesta = false;
+        SiguienteTurno();
+    }
+
     public void EvaluarCambioDeRondaActual()
     {
         if (jugadores.Count == 0) return;
-
         Jugador jugador = jugadores[jugadorActual];
-        bool logroAvanzar = jugador.IntentarAvanzarDeRonda();
-
-        if (logroAvanzar)
-        {
-            Debug.Log($"[GameManager] ¡{jugador.Nombre} ha avanzado con éxito a la Ronda {jugador.RondaActual}!");
-            // Aquí puedes agregar lógica adicional de cambio de nivel o reinicio visual si lo deseas
-        }
-        else
-        {
-            Debug.Log($"[GameManager] {jugador.Nombre} aún no cumple con el porcentaje necesario para cambiar de ronda.");
-        }
+        if (jugador.IntentarAvanzarDeRonda())
+            Debug.Log($"[GameManager] ¡{jugador.Nombre} avanzó a la Ronda {jugador.RondaActual}!");
     }
 
     private void SiguienteTurno()

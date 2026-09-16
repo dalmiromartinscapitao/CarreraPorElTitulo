@@ -5,8 +5,10 @@ public class FichaVisual : MonoBehaviour
 {
     public float velocidadMovimiento = 5.0f;
     public int PosicionActualVisual { get; private set; } = 0; 
+    
+    [Header("Desplazamiento (Evitar choques)")]
+    public Vector3 offsetFicha; // Sumará esta distancia al waypoint original
 
-    // NUEVO: Recibe la cantidad de pasos (el resultado del dado) en lugar del ID destino
     public void MoverAdelante(int pasos, Vector3[] posiciones)
     {
         StopAllCoroutines();
@@ -19,13 +21,13 @@ public class FichaVisual : MonoBehaviour
         {
             PosicionActualVisual++;
             
-            // Si la ficha visual llega al final del mapa, reinicia a 0 para dar la vuelta hacia adelante
             if (PosicionActualVisual >= posiciones.Length)
             {
                 PosicionActualVisual = 0;
             }
 
-            Vector3 destino = posiciones[PosicionActualVisual];
+            // Calculamos el destino sumando el punto de la casilla + el offset de esta ficha
+            Vector3 destino = posiciones[PosicionActualVisual] + offsetFicha;
             
             while (Vector3.Distance(transform.position, destino) > 0.01f)
             {
