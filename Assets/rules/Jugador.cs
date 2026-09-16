@@ -8,6 +8,7 @@ public class Jugador
     public int PosicionActualId { get; private set; }
     public string Estado { get; private set; }
     public bool TienePenalizacion { get; set; }
+    public int RespuestasCorrectas { get; private set; } = 0;
 
     // Constructor
     public Jugador(int id, string nombre, int posicionInicialId = 0)
@@ -64,20 +65,22 @@ public class Jugador
 
     // Evalúa la respuesta del jugador ante un casillero de tipo Pregunta
     public bool ResponderPregunta(int opcionSeleccionada, int opcionCorrecta)
+{
+    bool esCorrecta = (opcionSeleccionada == opcionCorrecta);
+
+    if (esCorrecta)
     {
-        bool esCorrecta = (opcionSeleccionada == opcionCorrecta);
-
-        if (esCorrecta)
-        {
-            Estado = "Respondió Correctamente";
-            Debug.Log($"[Pregunta] ¡{Nombre} respondió correctamente!");
-        }
-        else
-        {
-            Estado = "Respondió Incorrectamente";
-            Debug.Log($"[Pregunta] {Nombre} se equivocó en la respuesta.");
-        }
-
-        return esCorrecta;
+        Estado = "Respondió Correctamente";
+        RespuestasCorrectas++; // Aumenta el puntaje aquí
+        Debug.Log($"[Pregunta] ¡{Nombre} respondió correctamente! Total correctas: {RespuestasCorrectas}");
     }
+    else
+    {
+        Estado = "Respondió Incorrectamente";
+        Debug.Log($"[Pregunta] {Nombre} se equivocó en la respuesta.");
+    }
+
+    return esCorrecta;
+}
+    
 }

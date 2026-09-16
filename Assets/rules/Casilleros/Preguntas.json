@@ -1,0 +1,19 @@
+{
+  "preguntas": [
+    {
+      "texto": "¿Cuál no es un motor de Videojuegos?",
+      "opciones": ["Godot", "Unity", "Pupo3d", "Unreal"],
+      "indiceCorrecta": 2
+    },
+    {
+      "texto": "¿En que año salio la consola Nintendo Switch 2?",
+      "opciones": ["2020", "2022", "2025", "2024"],
+      "indiceCorrecta": 2
+    },
+    {
+      "texto": "¿Donde queda la UNAHUR?",
+      "opciones": ["Hurlingham", "Moron", "Peru", "Berlín"],
+      "indiceCorrecta": 0
+    }
+  ]
+}

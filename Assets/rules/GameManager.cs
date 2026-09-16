@@ -45,13 +45,33 @@ public class GameManager : MonoBehaviour
         {
             int siguiente = i + 1;
 
-            if (i == cantidadCasilleros - 1)
+            // Determinar si es el último casillero para no asignarle un siguiente
+            List<int> siguientesIds = (i == cantidadCasilleros - 1) 
+                ? new List<int>() 
+                : new List<int> { siguiente };
+
+            // Forzar que el inicio y el final siempre sean normales
+            if (i == 0 || i == cantidadCasilleros - 1)
             {
-                tablero.Add(new CasilleroNormal(i, new List<int>()));
+                tablero.Add(new CasilleroNormal(i, siguientesIds));
+                continue;
             }
-            else
+
+            // Distribuir los casilleros por el tablero
+            if (i % 3 == 0) 
             {
-                tablero.Add(new CasilleroNormal(i, new List<int> { siguiente }));
+                // Cada 3 espacios, una pregunta
+                tablero.Add(new CasilleroPregunta(i, siguientesIds));
+            }
+            else if (i % 5 == 0) 
+            {
+                // Cada 5 espacios, un evento especial
+                tablero.Add(new CasilleroEspecial(i, siguientesIds));
+            }
+            else 
+            {
+                // El resto son normales
+                tablero.Add(new CasilleroNormal(i, siguientesIds));
             }
         }
     }
