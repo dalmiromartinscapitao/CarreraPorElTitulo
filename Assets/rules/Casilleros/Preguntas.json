@@ -14,6 +14,134 @@
       "texto": "¿Donde queda la UNAHUR?",
       "opciones": ["Hurlingham", "Moron", "Peru", "Berlín"],
       "indiceCorrecta": 0
-    }
+    },
+    {
+      "texto": "¿Como se llama el personaje que te vende los mapas en Hollow Knight?",
+      "opciones": ["Gaston", "Cuerno", "Coliflor", "Cornifer"],
+      "indiceCorrecta": 3
+    },
+    {
+      "texto": "¿Cuando salio Super Mario Bros?",
+      "opciones": ["1999", "1985", "2030", "2026"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cuál de estos personajes pertenece a Nintendo?",
+      "opciones": ["Kratos", "Sonic", "Kirby", "Crash"],
+      "indiceCorrecta": 2
+    },
+    {
+      "texto": "¿En qué año salio GTA 2?",
+      "opciones": ["1999", "2013", "2002", "1930"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cómo se llama el protagonista de The Legend of Zelda?",
+      "opciones": ["Zelda", "Link", "Mario", "Kirby"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cómo se llama el hermano de Mario?",
+      "opciones": ["Wario", "Luigi", "Toad", "Bowser"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cuál de estos juegos pertenece a la saga Pokémon?",
+      "opciones": ["Pokémon Rojo", "Halo Rojo", "Mario Rojo", "Sonic Rojo"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cuál de estos juegos fue desarrollado por Valve?",
+      "opciones": ["Portal", "God of War", "Bloodborne", "Celeste"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cuál de estos juegos pertenece a FromSoftware?",
+      "opciones": ["Dark Souls", "Portal", "Cuphead", "Terraria"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Qué lenguaje se utiliza principalmente para programar en Unity?",
+      "opciones": ["Python", "C#", "Java", "PHP"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Qué significa NPC en videojuegos?",
+      "opciones": ["Non-Playable Character", "New Player Controller", "Next Playable Character", "Normal Player Code"],
+      "indiceCorrecta": 0
+    },
+    {
+    "texto": "¿Quién creó en 1931 el 'Baffle Ball'?",
+    "opciones": ["David Gottlieb", "Ralph Baer", "Nolan Bushnell", "Harry Mabs"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿En qué universidad estudiaban los creadores del juego SpaceWar!",
+    "opciones": ["Harvard", "Stanford", "MIT", "Princeton"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿Cómo se llamó la famosa empresa fundada por Nolan Bushnell y Ted Dabney?",
+    "opciones": ["Nintendo", "Atari", "Sega", "Bally"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿Cuál fue el exitoso juego de arcade sobre tenis de mesa creado por Atari en 1972?",
+    "opciones": ["Pong", "SpaceWar!", "Computer Space", "Tetris"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Qué inventó Harry Mabs que salvó a la industria del pinball?",
+    "opciones": ["El tilt", "Los flippers", "El monedero", "Las luces LED"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿Cómo se llamaba la primera computadora científica que funcionó en Argentina?",
+    "opciones": ["Clementina", "Matilda", "Eniac", "Clemendin"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Cómo ideó Toru Iwatani la forma de Pac-Man?",
+    "opciones": [ "Mirando un fantasma", "Comiendo una hamburguesa", "Viendo un reloj circular", "Viendo una pizza"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué criatura explota en Minecraft?",
+    "opciones": ["Zombie", "Creeper", "Esqueleto", "Enderman"],
+    "indiceCorrecta": 1
+  },
+{
+    "texto": "¿De qué color es Sonic?",
+    "opciones": ["Rojo", "Verde", "Amarillo", "Azul"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué come Pac-Man en el laberinto?",
+    "opciones": ["Monedas", "Estrellas", "Puntos", "Hongos"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿Cómo se llaman los personajes jugables en League of Legends?",
+    "opciones": ["Campeones", "Héroes", "Leyendas", "Guerreros"],
+    "indiceCorrecta": 0
+  },
+{
+    "texto": "¿Cómo se llama la moneda virtual de Roblox?",
+    "opciones": ["V-Bucks", "Monedas", "Gemas","Robux"],
+    "indiceCorrecta": 3
+  },
+{
+    "texto": "¿Qué tipo de juego es Valorant?",
+    "opciones": ["Battle Royale", "Deportes","Shooter táctico",  "Estrategia"],
+    "indiceCorrecta": 2
+  },
+{
+    "texto": "¿En qué ciudad ficticia se desarrolla GTA V?",
+    "opciones": ["Liberty City", "Vice City", "Los Santos", "San Fierro"],
+    "indiceCorrecta": 2
+  }
+
+
+
   ]
 }
