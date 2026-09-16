@@ -14,6 +14,61 @@
       "texto": "¿Donde queda la UNAHUR?",
       "opciones": ["Hurlingham", "Moron", "Peru", "Berlín"],
       "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Como se llama el personaje que te vende los mapas en Hollow Knight?",
+      "opciones": ["Gaston", "Cuerno", "Coliflor", "Cornifer"],
+      "indiceCorrecta": 3
+    },
+    {
+      "texto": "¿Cuando salio Super Mario Bros?",
+      "opciones": ["1999", "1985", "2030", "2026"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cuál de estos personajes pertenece a Nintendo?",
+      "opciones": ["Kratos", "Sonic", "Kirby", "Crash"],
+      "indiceCorrecta": 2
+    },
+    {
+      "texto": "¿En qué año salio GTA 2?",
+      "opciones": ["1999", "2013", "2002", "1930"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cómo se llama el protagonista de The Legend of Zelda?",
+      "opciones": ["Zelda", "Link", "Mario", "Kirby"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cómo se llama el hermano de Mario?",
+      "opciones": ["Wario", "Luigi", "Toad", "Bowser"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Cuál de estos juegos pertenece a la saga Pokémon?",
+      "opciones": ["Pokémon Rojo", "Halo Rojo", "Mario Rojo", "Sonic Rojo"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cuál de estos juegos fue desarrollado por Valve?",
+      "opciones": ["Portal", "God of War", "Bloodborne", "Celeste"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Cuál de estos juegos pertenece a FromSoftware?",
+      "opciones": ["Dark Souls", "Portal", "Cuphead", "Terraria"],
+      "indiceCorrecta": 0
+    },
+    {
+      "texto": "¿Qué lenguaje se utiliza principalmente para programar en Unity?",
+      "opciones": ["Python", "C#", "Java", "PHP"],
+      "indiceCorrecta": 1
+    },
+    {
+      "texto": "¿Qué significa NPC en videojuegos?",
+      "opciones": ["Non-Playable Character", "New Player Controller", "Next Playable Character", "Normal Player Code"],
+      "indiceCorrecta": 0
     }
   ]
 }
