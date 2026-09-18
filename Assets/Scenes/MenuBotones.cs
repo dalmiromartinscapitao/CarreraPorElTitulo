@@ -8,8 +8,13 @@ public class MenuPrincipal : MonoBehaviour
         SceneManager.LoadScene("Juego");
     }
 
-    public void SalirDelJuego()
+    public void SalirDelJuego() //Volver al menu principal
     {
         SceneManager.LoadScene("Menu");
+    }
+
+    public void SalirDeLaAplicacion() //Cierra el juego por completo
+    {
+        Application.Quit();
     }
 }
