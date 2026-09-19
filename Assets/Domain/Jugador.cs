@@ -127,6 +127,8 @@ public class Jugador
         }
         return esCorrecta;
     }
+
+    // Devuelve el número de respuestas correctas necesarias
     public int ObtenerObjetivoDeRonda()
     {
         switch (RondaActual)
