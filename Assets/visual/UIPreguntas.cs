@@ -71,12 +71,45 @@ public class UIPreguntas : MonoBehaviour
         panelPregunta.SetActive(true); 
     }
 
-   private void AlPresionarBoton(int opcionSeleccionada)
+   private void AlPresionarBoton(
+    int opcionSeleccionada
+)
+{
+    // ---------------------------------------------------------
+    // REGISTRAR LA RESPUESTA
+    // ---------------------------------------------------------
+
+    bool respuestaCorrecta =
+        jugadorActual.ResponderPregunta(
+            opcionSeleccionada,
+            preguntaActual.indiceCorrecta
+        );
+
+
+    // ---------------------------------------------------------
+    // ACTUALIZAR LA INTERFAZ
+    // ---------------------------------------------------------
+
+    if (UIJuego.Instancia != null)
     {
-        jugadorActual.ResponderPregunta(opcionSeleccionada, preguntaActual.indiceCorrecta);
-        panelPregunta.SetActive(false);
-        
-        // Esta es la línea clave que desbloquea el dado
-        GameManager.Instancia.ReanudarTurno(); 
+        UIJuego.Instancia.MostrarResultado(
+            jugadorActual,
+            respuestaCorrecta
+        );
     }
+
+
+    // ---------------------------------------------------------
+    // CERRAR PREGUNTA
+    // ---------------------------------------------------------
+
+    panelPregunta.SetActive(false);
+
+
+    // ---------------------------------------------------------
+    // CONTINUAR TURNO
+    // ---------------------------------------------------------
+
+    GameManager.Instancia.ReanudarTurno();
+}
 }

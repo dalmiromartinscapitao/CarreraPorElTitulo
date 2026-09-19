@@ -46,6 +46,14 @@ public class GameManager : MonoBehaviour
 
 
     // =========================================================
+    // CAMARAS
+    // =========================================================
+
+    [Header("Cámaras de Jugadores (Asignar 4)")]
+    public Camera[] camarasJugadores;
+
+
+    // =========================================================
     // TABLERO
     // =========================================================
 
@@ -268,6 +276,39 @@ public class GameManager : MonoBehaviour
 
 
     // =========================================================
+    // ACCESO A LOS JUGADORES PARA LA INTERFAZ
+    // =========================================================
+
+    public Jugador ObtenerJugador(int indice)
+{
+    if (
+        indice < 0 ||
+        indice >= jugadores.Count
+    )
+    {
+        return null;
+    }
+
+    return jugadores[indice];
+}
+
+
+    public Jugador ObtenerJugadorActual()
+{
+    if (
+        jugadorActual < 0 ||
+        jugadorActual >= jugadores.Count
+    )
+    {
+        return null;
+    }
+
+    return jugadores[jugadorActual];
+}
+    
+
+
+    // =========================================================
     // MOSTRAR JUGADOR ACTUAL
     // =========================================================
 
@@ -281,6 +322,10 @@ public class GameManager : MonoBehaviour
             jugadores[jugadorActual];
 
 
+        // Cambiar cámara al jugador que tiene el turno.
+        CambiarCamaraJugador();
+
+
         Debug.Log(
             $"[TURNO] {jugador.Nombre} | " +
             $"Vuelta: {jugador.RondaActual}/3 | " +
@@ -288,6 +333,88 @@ public class GameManager : MonoBehaviour
             $"Objetivo: {jugador.ObtenerObjetivoDeRonda()} | " +
             $"Casillero: {jugador.PosicionActualId + 1}"
         );
+
+        // Actualizar la interfaz.
+        if (UIJuego.Instancia != null)
+    {
+            UIJuego.Instancia.ActualizarInterfaz();
+    }
+    }
+
+
+    // =========================================================
+    // CAMBIAR CÁMARA DEL JUGADOR
+    // =========================================================
+
+    private void CambiarCamaraJugador()
+    {
+        // Verificar que existan cámaras.
+        if (
+            camarasJugadores == null ||
+            camarasJugadores.Length == 0
+        )
+        {
+            Debug.LogWarning(
+                "[CAMARAS] No hay cámaras asignadas."
+            );
+
+            return;
+        }
+
+
+        // Apagar todas las cámaras.
+        for (
+            int i = 0;
+            i < camarasJugadores.Length;
+            i++
+        )
+        {
+            if (camarasJugadores[i] != null)
+            {
+                camarasJugadores[i]
+                    .gameObject
+                    .SetActive(false);
+            }
+        }
+
+
+        // Verificar que el jugador actual
+        // tenga una cámara correspondiente.
+        if (
+            jugadorActual < 0 ||
+            jugadorActual >= camarasJugadores.Length
+        )
+        {
+            Debug.LogWarning(
+                "[CAMARAS] No existe una cámara " +
+                "para el jugador actual."
+            );
+
+            return;
+        }
+
+
+        // Encender solamente la cámara
+        // del jugador actual.
+        if (camarasJugadores[jugadorActual] != null)
+        {
+            camarasJugadores[jugadorActual]
+                .gameObject
+                .SetActive(true);
+
+
+            Debug.Log(
+                $"[CAMARA] Cámara cambiada a " +
+                $"Jugador {jugadorActual + 1}"
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"[CAMARAS] La cámara del jugador " +
+                $"{jugadorActual + 1} no está asignada."
+            );
+        }
     }
 
 
