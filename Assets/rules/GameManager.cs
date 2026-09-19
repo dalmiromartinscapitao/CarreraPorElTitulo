@@ -533,4 +533,5 @@ public class GameManager : MonoBehaviour
         
         MostrarJugadorActual();
     }
+    //hola
 }
