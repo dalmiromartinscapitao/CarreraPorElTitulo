@@ -25,8 +25,8 @@ public class GameManager : MonoBehaviour
     [Header("Fichas de Jugadores (Asignar 4)")]
     public FichaVisual[] fichasVisuales3D;
 
-    [Header("Cámaras de Jugadores (Asignar 4)")]
-    public Camera[] camarasJugadores;
+    [Header("Script de la Cámara Principal")]
+    public CamaraSigue camaraPrincipalScript; // Arrastra aquí la Main Camera que tiene el script CamaraSigue
 
     [Header("Configuración del Tablero")]
     public Transform contenedorCasillas;
@@ -101,33 +101,10 @@ public class GameManager : MonoBehaviour
 
     private void InicializarJugadores()
     {
-        jugadores.Add(
-            new Jugador(
-                1,
-                "Jugador Rojo"
-            )
-        );
-
-        jugadores.Add(
-            new Jugador(
-                2,
-                "Jugador Azul"
-            )
-        );
-
-        jugadores.Add(
-            new Jugador(
-                3,
-                "Jugador Verde"
-            )
-        );
-
-        jugadores.Add(
-            new Jugador(
-                4,
-                "Jugador Amarillo"
-            )
-        );
+        jugadores.Add(new Jugador(1, "Jugador Rojo"));
+        jugadores.Add(new Jugador(2, "Jugador Azul"));
+        jugadores.Add(new Jugador(3, "Jugador Verde"));
+        jugadores.Add(new Jugador(4, "Jugador Amarillo"));
     }
 
     private void InicializarTablero()
@@ -200,30 +177,30 @@ public class GameManager : MonoBehaviour
     }
 
     public Jugador ObtenerJugador(int indice)
-{
-    if (
-        indice < 0 ||
-        indice >= jugadores.Count
-    )
     {
-        return null;
-    }
+        if (
+            indice < 0 ||
+            indice >= jugadores.Count
+        )
+        {
+            return null;
+        }
 
-    return jugadores[indice];
-}
+        return jugadores[indice];
+    }
 
     public Jugador ObtenerJugadorActual()
-{
-    if (
-        jugadorActual < 0 ||
-        jugadorActual >= jugadores.Count
-    )
     {
-        return null;
-    }
+        if (
+            jugadorActual < 0 ||
+            jugadorActual >= jugadores.Count
+        )
+        {
+            return null;
+        }
 
-    return jugadores[jugadorActual];
-}
+        return jugadores[jugadorActual];
+    }
 
     private void MostrarJugadorActual()
     {
@@ -233,7 +210,20 @@ public class GameManager : MonoBehaviour
         Jugador jugador =
             jugadores[jugadorActual];
 
-        CambiarCamaraJugador();
+        // Asignamos directamente el objetivo a la cámara de forma segura
+        if (
+            camaraPrincipalScript != null &&
+            jugadorActual >= 0 &&
+            jugadorActual < fichasVisuales3D.Length &&
+            fichasVisuales3D[jugadorActual] != null
+        )
+        {
+            Transform nuevaFicha = fichasVisuales3D[jugadorActual].transform;
+            camaraPrincipalScript.objetivo = nuevaFicha;
+            
+            // Coloca la cámara instantáneamente sobre el jugador al cambiar de turno
+            camaraPrincipalScript.transform.position = nuevaFicha.position + camaraPrincipalScript.offset;
+        }
 
         Debug.Log(
             $"[TURNO] {jugador.Nombre} | " +
@@ -244,70 +234,8 @@ public class GameManager : MonoBehaviour
         );
 
         if (UIJuego.Instancia != null)
-    {
+        {
             UIJuego.Instancia.ActualizarInterfaz();
-    }
-    }
-
-    private void CambiarCamaraJugador()
-    {
-        if (
-            camarasJugadores == null ||
-            camarasJugadores.Length == 0
-        )
-        {
-            Debug.LogWarning(
-                "[CAMARAS] No hay cámaras asignadas."
-            );
-
-            return;
-        }
-
-        for (
-            int i = 0;
-            i < camarasJugadores.Length;
-            i++
-        )
-        {
-            if (camarasJugadores[i] != null)
-            {
-                camarasJugadores[i]
-                    .gameObject
-                    .SetActive(false);
-            }
-        }
-
-        if (
-            jugadorActual < 0 ||
-            jugadorActual >= camarasJugadores.Length
-        )
-        {
-            Debug.LogWarning(
-                "[CAMARAS] No existe una cámara " +
-                "para el jugador actual."
-            );
-
-            return;
-        }
-
-        if (camarasJugadores[jugadorActual] != null)
-        {
-            camarasJugadores[jugadorActual]
-                .gameObject
-                .SetActive(true);
-
-
-            Debug.Log(
-                $"[CAMARA] Cámara cambiada a " +
-                $"Jugador {jugadorActual + 1}"
-            );
-        }
-        else
-        {
-            Debug.LogWarning(
-                $"[CAMARAS] La cámara del jugador " +
-                $"{jugadorActual + 1} no está asignada."
-            );
         }
     }
 
@@ -329,22 +257,9 @@ public class GameManager : MonoBehaviour
 
         if (jugador.DebeRepetirPreguntas)
         {
-            Debug.Log(
-                $"[BLOQUEADO] {jugador.Nombre} " +
-                "debe responder una pregunta " +
-                "en el casillero 28."
-            );
-
-            Debug.Log(
-                $"[BLOQUEADO] Tiene " +
-                $"{jugador.RespuestasCorrectas} " +
-                $"correctas de " +
-                $"{jugador.ObtenerObjetivoDeRonda()}."
-            );
             EsperandoRespuesta = true;
             UIPreguntas.Instancia
                 .MostrarPregunta(jugador);
-
 
             return;
         }
@@ -376,75 +291,39 @@ public class GameManager : MonoBehaviour
                 ultimaPosicion
             );
 
-            MoverFichaAIndice(
+            MoverFichaAIndiceConCallback(
                 jugadorActual,
-                ultimaPosicion
+                ultimaPosicion,
+                () => {
+                    StartCoroutine(EsperarYContinuarVuelta(jugador));
+                }
             );
-
-
-            Debug.Log(
-                $"[VUELTA] {jugador.Nombre} llegó " +
-                "al casillero 28."
-            );
-
-            if (
-                !jugador.TieneRespuestasNecesarias()
-            )
-            {
-                jugador.IntentarCompletarVuelta();
-
-                Debug.Log(
-                    $"[BLOQUEADO] {jugador.Nombre} " +
-                    "debe quedarse en el casillero 28."
-                );
-
-                Debug.Log(
-                    $"[BLOQUEADO] Le faltan " +
-                    $"{jugador.ObtenerRespuestasFaltantes()} " +
-                    "respuestas correctas."
-                );
-                SiguienteTurno();
-                return;
-            }
-
-            int rondaAntes =
-                jugador.RondaActual;
-            bool completo =
-                jugador.IntentarCompletarVuelta();
-            if (!completo)
-            {
-                SiguienteTurno();
-                return;
-            }
-            if (rondaAntes == 3)
-            {
-                FinalizarJuego(jugador);
-                return;
-            }
-            MoverFichaAIndice(
-                jugadorActual,
-                jugador.PosicionActualId
-            );
-            Debug.Log(
-                $"[VUELTA] {jugador.Nombre} ahora " +
-                $"está en la Vuelta " +
-                $"{jugador.RondaActual}."
-            );
-            Debug.Log(
-                $"[VUELTA] {jugador.Nombre} volvió " +
-                "al casillero 1."
-            );
-            SiguienteTurno();
             return;
         }
+
         jugador.Moverse(
             resultado,
             tablero.Count
         );
-        MoverFichaAIndice(
+
+        MoverFichaAIndiceConCallback(
             jugadorActual,
-            jugador.PosicionActualId
+            jugador.PosicionActualId,
+            () => {
+                StartCoroutine(EsperarYProcesarCasillero(jugador));
+            }
         );
+    }
+
+    // =========================================================
+    // CORRUTINAS DE PAUSA DESPUÉS DEL MOVIMIENTO
+    // =========================================================
+
+    private System.Collections.IEnumerator EsperarYProcesarCasillero(Jugador jugador)
+    {
+        // Espera 1 segundo antes de ejecutar efectos o cambiar de turno
+        yield return new WaitForSeconds(1.0f);
+
         CasilleroBase casilleroActual =
             tablero.Find(
                 c =>
@@ -452,12 +331,12 @@ public class GameManager : MonoBehaviour
                     jugador.PosicionActualId
             );
 
-
         if (casilleroActual != null)
         {
             casilleroActual.EjecutarEfecto(
                 jugador
             );
+
             if (
                 casilleroActual.Tipo ==
                 TipoCasillero.EfectoEspecial
@@ -468,7 +347,6 @@ public class GameManager : MonoBehaviour
                     jugador.EstablecerPosicion(0);
                 }
 
-
                 if (
                     jugador.PosicionActualId >=
                     tablero.Count
@@ -478,7 +356,6 @@ public class GameManager : MonoBehaviour
                         tablero.Count - 1
                     );
                 }
-
 
                 MoverFichaAIndice(
                     jugadorActual,
@@ -492,11 +369,49 @@ public class GameManager : MonoBehaviour
             )
             {
                 EsperandoRespuesta = true;
-
-                return;
+                yield break;
             }
         }
 
+        SiguienteTurno();
+    }
+
+    private System.Collections.IEnumerator EsperarYContinuarVuelta(Jugador jugador)
+    {
+        // Espera 1 segundo al llegar al final
+        yield return new WaitForSeconds(1.0f);
+
+        if (
+            !jugador.TieneRespuestasNecesarias()
+        )
+        {
+            jugador.IntentarCompletarVuelta();
+            SiguienteTurno();
+            yield break;
+        }
+
+        int rondaAntes =
+            jugador.RondaActual;
+        bool completo =
+            jugador.IntentarCompletarVuelta();
+        
+        if (!completo)
+        {
+            SiguienteTurno();
+            yield break;
+        }
+
+        if (rondaAntes == 3)
+        {
+            FinalizarJuego(jugador);
+            yield break;
+        }
+
+        MoverFichaAIndice(
+            jugadorActual,
+            jugador.PosicionActualId
+        );
+        
         SiguienteTurno();
     }
 
@@ -505,28 +420,24 @@ public class GameManager : MonoBehaviour
         int indiceCasillero
     )
     {
+        MoverFichaAIndiceConCallback(indiceJugador, indiceCasillero, null);
+    }
+
+    private void MoverFichaAIndiceConCallback(
+        int indiceJugador,
+        int indiceCasillero,
+        System.Action alTerminar
+    )
+    {
         if (
             indiceJugador < 0 ||
-            indiceJugador >= fichasVisuales3D.Length
-        )
-        {
-            return;
-        }
-
-
-        if (
-            fichasVisuales3D[indiceJugador] == null
-        )
-        {
-            return;
-        }
-
-
-        if (
+            indiceJugador >= fichasVisuales3D.Length ||
+            fichasVisuales3D[indiceJugador] == null ||
             rutaPosiciones == null ||
             rutaPosiciones.Length == 0
         )
         {
+            alTerminar?.Invoke();
             return;
         }
 
@@ -537,13 +448,14 @@ public class GameManager : MonoBehaviour
                 rutaPosiciones.Length - 1
             );
 
-
         fichasVisuales3D[indiceJugador]
             .MoverAIndice(
                 indiceCasillero,
-                rutaPosiciones
+                rutaPosiciones,
+                alTerminar
             );
     }
+
     private void FinalizarJuego(
         Jugador ganador
     )
@@ -552,28 +464,19 @@ public class GameManager : MonoBehaviour
         Ganador = ganador;
         ganador.MarcarComoGanador();
         EsperandoRespuesta = false;
-        Debug.Log(
-            "===================================="
-        );
-        Debug.Log(
-            "          ¡JUEGO TERMINADO!"
-        );
-        Debug.Log(
-            $"          GANADOR: {ganador.Nombre}"
-        );
-        Debug.Log(
-            "===================================="
-        );
+        
         VictoriaManager.NombreGanador =
             ganador.Nombre;
         SceneManager.LoadScene(
             "Victoria"
         );
     }
+
     public void ReanudarTurno()
     {
         if (JuegoTerminado)
             return;
+            
         EsperandoRespuesta = false;
         Jugador jugador =
             jugadores[jugadorActual];
@@ -584,52 +487,40 @@ public class GameManager : MonoBehaviour
                 !jugador.TieneRespuestasNecesarias()
             )
             {
-                Debug.Log(
-                    $"[BLOQUEADO] {jugador.Nombre} " +
-                    "todavía no consigue las respuestas " +
-                    "necesarias."
-                );
-                Debug.Log(
-                    $"[BLOQUEADO] Correctas: " +
-                    $"{jugador.RespuestasCorrectas}/" +
-                    $"{jugador.ObtenerObjetivoDeRonda()}"
-                );
                 SiguienteTurno();
                 return;
             }
+            
             int rondaAntes =
                 jugador.RondaActual;
             bool completo =
                 jugador.IntentarCompletarVuelta();
+                
             if (!completo)
             {
                 SiguienteTurno();
                 return;
             }
+            
             if (rondaAntes == 3)
             {
                 FinalizarJuego(jugador);
                 return;
             }
+            
             MoverFichaAIndice(
                 jugadorActual,
                 jugador.PosicionActualId
             );
-            Debug.Log(
-                $"[VUELTA] {jugador.Nombre} pasó " +
-                $"a la Vuelta {jugador.RondaActual}."
-            );
-            Debug.Log(
-                "[VUELTA] La ficha volvió al casillero 1."
-            );
         }
+        
         SiguienteTurno();
     }
+
     private void SiguienteTurno()
     {
         if (JuegoTerminado)
             return;
-
 
         jugadorActual++;
         if (
@@ -639,6 +530,7 @@ public class GameManager : MonoBehaviour
         {
             jugadorActual = 0;
         }
+        
         MostrarJugadorActual();
     }
 }

@@ -6,28 +6,19 @@ public class FichaVisual : MonoBehaviour
     [Header("Movimiento")]
     public float velocidadMovimiento = 5.0f;
 
-
-    // Índice real del waypoint donde está la ficha.
-    // 0 = casillero 1
-    // 27 = casillero 28
     public int PosicionActualVisual
     {
         get;
         private set;
     } = 0;
 
-
     [Header("Desplazamiento (Evitar choques)")]
     public Vector3 offsetFicha;
 
-
-    // =========================================================
-    // MOVER A UNA POSICIÓN ESPECÍFICA
-    // =========================================================
-
     public void MoverAIndice(
         int indiceDestino,
-        Vector3[] posiciones
+        Vector3[] posiciones,
+        System.Action alTerminarMovimiento = null
     )
     {
         if (
@@ -35,9 +26,9 @@ public class FichaVisual : MonoBehaviour
             posiciones.Length == 0
         )
         {
+            alTerminarMovimiento?.Invoke();
             return;
         }
-
 
         indiceDestino =
             Mathf.Clamp(
@@ -46,29 +37,23 @@ public class FichaVisual : MonoBehaviour
                 posiciones.Length - 1
             );
 
-
         StopAllCoroutines();
-
 
         StartCoroutine(
             CorrutinaMoverAIndice(
                 indiceDestino,
-                posiciones
+                posiciones,
+                alTerminarMovimiento
             )
         );
     }
 
-
-    // =========================================================
-    // CORRUTINA DE MOVIMIENTO
-    // =========================================================
-
     private IEnumerator CorrutinaMoverAIndice(
         int indiceDestino,
-        Vector3[] posiciones
+        Vector3[] posiciones,
+        System.Action alTerminarMovimiento
     )
     {
-        // Si ya está en el destino, no hacemos nada.
         if (
             PosicionActualVisual ==
             indiceDestino
@@ -77,7 +62,6 @@ public class FichaVisual : MonoBehaviour
             Vector3 destinoFinal =
                 posiciones[indiceDestino] +
                 offsetFicha;
-
 
             while (
                 Vector3.Distance(
@@ -94,30 +78,21 @@ public class FichaVisual : MonoBehaviour
                         Time.deltaTime
                     );
 
-
                 yield return null;
             }
-
 
             transform.position =
                 destinoFinal;
 
-
+            alTerminarMovimiento?.Invoke();
             yield break;
         }
 
-
-        // Determinar si avanzamos o retrocedemos.
         int direccion =
             PosicionActualVisual <
             indiceDestino
             ? 1
             : -1;
-
-
-        // -----------------------------------------------------
-        // MOVER CASILLERO POR CASILLERO
-        // -----------------------------------------------------
 
         while (
             PosicionActualVisual !=
@@ -127,13 +102,11 @@ public class FichaVisual : MonoBehaviour
             PosicionActualVisual +=
                 direccion;
 
-
             Vector3 destino =
                 posiciones[
                     PosicionActualVisual
                 ] +
                 offsetFicha;
-
 
             while (
                 Vector3.Distance(
@@ -150,20 +123,15 @@ public class FichaVisual : MonoBehaviour
                         Time.deltaTime
                     );
 
-
                 yield return null;
             }
-
 
             transform.position =
                 destino;
         }
+
+        alTerminarMovimiento?.Invoke();
     }
-
-
-    // =========================================================
-    // SINCRONIZAR INSTANTÁNEAMENTE
-    // =========================================================
 
     public void SincronizarPosicion(
         int indice,
@@ -178,7 +146,6 @@ public class FichaVisual : MonoBehaviour
             return;
         }
 
-
         indice =
             Mathf.Clamp(
                 indice,
@@ -186,28 +153,15 @@ public class FichaVisual : MonoBehaviour
                 posiciones.Length - 1
             );
 
-
         StopAllCoroutines();
-
 
         PosicionActualVisual =
             indice;
-
 
         transform.position =
             posiciones[indice] +
             offsetFicha;
     }
-
-
-    // =========================================================
-    // MÉTODO ANTIGUO
-    // =========================================================
-    //
-    // Lo dejamos para mantener compatibilidad con cualquier
-    // otro script que todavía lo esté usando.
-    //
-    // Ahora NO hace wrap de 28 → 1.
 
     public void MoverAdelante(
         int pasos,
@@ -222,10 +176,8 @@ public class FichaVisual : MonoBehaviour
             return;
         }
 
-
         int destino =
             PosicionActualVisual + pasos;
-
 
         destino =
             Mathf.Clamp(
@@ -234,10 +186,10 @@ public class FichaVisual : MonoBehaviour
                 posiciones.Length - 1
             );
 
-
         MoverAIndice(
             destino,
-            posiciones
+            posiciones,
+            null
         );
     }
 }

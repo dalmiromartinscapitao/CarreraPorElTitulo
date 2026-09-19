@@ -2,25 +2,54 @@ using UnityEngine;
 
 public class CamaraSigue : MonoBehaviour
 {
-    [Tooltip("Arrastra aquí el GameObject de tu Ficha Visual")]
-    public Transform objetivo; 
-    
-    [Tooltip("Distancia relativa entre la cámara y la ficha")]
-    public Vector3 offset = new Vector3(0, 5f, -5f); 
-    
-    [Tooltip("Qué tan suave será el movimiento de la cámara")]
+    [Header("Jugador que sigue la cámara")]
+    public Transform objetivo;
+
+    [Header("Distancia de la cámara respecto al jugador")]
+    public Vector3 offset = new Vector3(0, 5f, -5f);
+
+    [Header("Suavizado del movimiento")]
     public float velocidadSuavizado = 5f;
 
-    
-    private void LateUpdate()
+
+    // =========================================================
+    // CAMBIAR EL OBJETIVO DE LA CÁMARA
+    // =========================================================
+
+    public void SeguirJugador(Transform nuevoObjetivo)
     {
+        objetivo = nuevoObjetivo;
+
         if (objetivo != null)
         {
-       
-            Vector3 posicionDeseada = objetivo.position + offset;
-            
-          
-            transform.position = Vector3.Lerp(transform.position, posicionDeseada, velocidadSuavizado * Time.deltaTime);
+            // Coloca inmediatamente la cámara
+            // cerca del nuevo jugador.
+            transform.position =
+                objetivo.position + offset;
         }
+    }
+
+
+    // =========================================================
+    // SEGUIR AL JUGADOR
+    // =========================================================
+
+    private void LateUpdate()
+    {
+        if (objetivo == null)
+            return;
+
+
+        Vector3 posicionDeseada =
+            objetivo.position + offset;
+
+
+        transform.position =
+            Vector3.Lerp(
+                transform.position,
+                posicionDeseada,
+                velocidadSuavizado *
+                Time.deltaTime
+            );
     }
 }
