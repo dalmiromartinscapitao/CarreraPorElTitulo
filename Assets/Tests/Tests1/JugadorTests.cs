@@ -6,10 +6,9 @@ public class JugadorTests
     public void JugadorPuedeCompletarLaTerceraVuelta()
     {
         // ARRANGE
-        Jugador jugador = new Jugador(
-            1,
-            "Jugador Rojo"
-        );
+        ConfiguracionPartida configuracion = ConfiguracionPartida.Crear(ModoPartida.Normal);
+
+        Jugador jugador = new Jugador(1,"Jugador Rojo",configuracion);
 
         // ACT
         // Llevamos al jugador a la tercera vuelta.
@@ -65,10 +64,9 @@ public class JugadorTests
     public void JugadorNoPuedeCompletarVueltaSinRespuestasNecesarias()
     {
         // ARRANGE
-        Jugador jugador = new Jugador(
-            1,
-            "Jugador Rojo"
-        );
+        ConfiguracionPartida configuracion = ConfiguracionPartida.Crear(ModoPartida.Normal);
+
+        Jugador jugador = new Jugador(1,"Jugador Rojo",configuracion);
 
         // Lo llevamos directamente a la tercera vuelta
         // simulando que ya completó las dos anteriores.

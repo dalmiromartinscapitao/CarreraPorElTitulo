@@ -6,20 +6,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instancia;
 
-    private List<CasilleroBase> tablero =
-        new List<CasilleroBase>();
-
-    private List<Jugador> jugadores =
-        new List<Jugador>();
-
+    private List<CasilleroBase> tablero = new List<CasilleroBase>();
+    private List<Jugador> jugadores = new List<Jugador>();
     private int jugadorActual = 0;
 
-    public bool EsperandoRespuesta { get; private set; }
-        = false;
-
-    public bool JuegoTerminado { get; private set; }
-        = false;
-
+    public bool EsperandoRespuesta { get; private set; } = false;
+    public bool JuegoTerminado { get; private set; } = false;
     public Jugador Ganador { get; private set; }
 
     [Header("Fichas de Jugadores (Asignar 4)")]
@@ -33,10 +25,20 @@ public class GameManager : MonoBehaviour
 
     private Vector3[] rutaPosiciones;
 
+    private ConfiguracionPartida configuracion;
+
     private void Awake()
     {
+        if (Instancia != null && Instancia != this)
+        {
+        Destroy(gameObject);
+        return;
+        }
+
         Instancia = this;
-    }
+
+        configuracion = ConfiguracionPartida.Crear(SesionPartida.ModoSeleccionado);
+}
 
     private void Start()
     {
@@ -101,10 +103,10 @@ public class GameManager : MonoBehaviour
 
     private void InicializarJugadores()
     {
-        jugadores.Add(new Jugador(1, "Jugador Rojo"));
-        jugadores.Add(new Jugador(2, "Jugador Azul"));
-        jugadores.Add(new Jugador(3, "Jugador Verde"));
-        jugadores.Add(new Jugador(4, "Jugador Amarillo"));
+        jugadores.Add(new Jugador(1, "Jugador Rojo", configuracion));
+        jugadores.Add(new Jugador(2, "Jugador Azul", configuracion));
+        jugadores.Add(new Jugador(3, "Jugador Verde", configuracion));
+        jugadores.Add(new Jugador(4, "Jugador Amarillo", configuracion));
     }
 
     private void InicializarTablero()
@@ -401,7 +403,7 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        if (rondaAntes == 3)
+        if (configuracion.EsUltimaVuelta(rondaAntes))
         {
             FinalizarJuego(jugador);
             yield break;
@@ -502,7 +504,7 @@ public class GameManager : MonoBehaviour
                 return;
             }
             
-            if (rondaAntes == 3)
+            if (configuracion.EsUltimaVuelta(rondaAntes))
             {
                 FinalizarJuego(jugador);
                 return;

@@ -12,15 +12,17 @@ public class Jugador
     public int RespuestasTotales { get; private set; } = 0;
     public bool DebeRepetirPreguntas { get; private set; } = false;
     public bool Gano { get; private set; } = false;
+    private ConfiguracionPartida configuracion;
     public Jugador(
         int id,
         string nombre,
-        int posicionInicialId = 0
-    )
+        ConfiguracionPartida configuracionPartida,
+        int posicionInicialId = 0)
     {
         Id = id;
         Nombre = nombre;
         PosicionActualId = posicionInicialId;
+        configuracion = configuracionPartida;
 
         Estado = "Esperando Turno";
         TienePenalizacion = false;
@@ -131,21 +133,9 @@ public class Jugador
     // Devuelve el número de respuestas correctas necesarias
     public int ObtenerObjetivoDeRonda()
     {
-        switch (RondaActual)
-        {
-            case 1:
-                return 3;
-
-            case 2:
-                return 4;
-
-            case 3:
-                return 5;
-
-            default:
-                return 5;
-        }
+    return configuracion.ObtenerObjetivoDeVuelta(RondaActual);
     }
+
     public bool TieneRespuestasNecesarias()
     {
         return
@@ -192,7 +182,7 @@ public class Jugador
             $"y necesita solamente " +
             $"{ObtenerObjetivoDeRonda()}."
         );
-        if (RondaActual == 3)
+        if (configuracion.EsUltimaVuelta(RondaActual))
         {
             DebeRepetirPreguntas = false;
             Debug.Log(
@@ -222,9 +212,6 @@ public class Jugador
     {
         Gano = true;
         Estado = "¡GANÓ EL JUEGO!";
-        Debug.Log(
-            $"[VICTORIA] ¡{Nombre} completó " +
-            "las 3 vueltas y ganó el juego!"
-        );
+        Debug.Log($"[VICTORIA] ¡{Nombre} completó todas las vueltas y ganó el juego!");
     }
 }
