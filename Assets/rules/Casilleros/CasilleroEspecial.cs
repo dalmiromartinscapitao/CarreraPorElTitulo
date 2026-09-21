@@ -1,49 +1,54 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class CasilleroEspecial : CasilleroBase
-{
-    private static readonly System.Random random = new System.Random();
+public class CasilleroEspecial : CasilleroBase{
+    private static readonly Random random = new Random();
+    private const int CantidadMovimiento = 2;
 
-    public CasilleroEspecial(int id, List<int> siguientesIds) : base(id, siguientesIds)
-    {
+    private enum TipoEfecto{
+        Avanzar,
+        Retroceder,
+        Penalizacion
+    }
+
+    private static readonly TipoEfecto[] efectosDisponibles = {
+        TipoEfecto.Avanzar,
+        TipoEfecto.Retroceder,
+        TipoEfecto.Penalizacion
+    };
+
+    public CasilleroEspecial(int id,List<int> siguientesIds): base(id, siguientesIds){
         Tipo = TipoCasillero.EfectoEspecial;
     }
 
-    public override void EjecutarEfecto(Jugador jugador)
-    {
-        int efecto = random.Next(0, 3); // Genera 0, 1 o 2
+    public override void EjecutarEfecto(Jugador jugador){
+        if (jugador == null){
+            return;
+        }
 
-        switch (efecto)
-        {
-            case 0:
-                EfectoAvanzar(jugador, 2);
-                break;
-            case 1:
-                EfectoRetroceder(jugador, 2);
-                break;
-            case 2:
-                EfectoPerderTurno(jugador);
-                break;
+        TipoEfecto efecto = efectosDisponibles[random.Next(efectosDisponibles.Length)];
+
+        switch (efecto){
+            case TipoEfecto.Avanzar:EfectoAvanzar(jugador,CantidadMovimiento);
+            break;
+
+            case TipoEfecto.Retroceder:EfectoRetroceder(jugador,CantidadMovimiento);
+            break;
+
+            case TipoEfecto.Penalizacion:EfectoPerderTurno(jugador);
+            break;
         }
     }
 
-    private void EfectoAvanzar(Jugador jugador, int cantidad)
-    {
-        Debug.Log($"[Efecto Especial] ¡{jugador.Nombre} avanza {cantidad} casilleros extra!");
+    private void EfectoAvanzar(Jugador jugador,int cantidad){
         jugador.MoverInstantanio(cantidad);
     }
 
-    private void EfectoRetroceder(Jugador jugador, int cantidad)
-    {
-        Debug.Log($"[Efecto Especial] ¡{jugador.Nombre} retrocede {cantidad} casilleros!");
+    private void EfectoRetroceder(Jugador jugador,int cantidad){
         jugador.MoverInstantanio(-cantidad);
     }
 
-    private void EfectoPerderTurno(Jugador jugador)
-    {
-        Debug.Log($"[Efecto Especial] ¡{jugador.Nombre} recibe una penalización para su próximo turno!");
-        jugador.TienePenalizacion = true; // <--- Cambio aquí (antes decía PierdeTurno)
+    private void EfectoPerderTurno(Jugador jugador){
+        jugador.TienePenalizacion = true;
     }
 }

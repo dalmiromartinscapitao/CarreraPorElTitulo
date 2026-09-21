@@ -235,8 +235,7 @@ public class GameManager : MonoBehaviour
         });
     }
 
-    private System.Collections.IEnumerator EsperarYProcesarCasillero(Jugador jugador)
-    {
+    private System.Collections.IEnumerator EsperarYProcesarCasillero(Jugador jugador){
         // Espera 1 segundo antes de ejecutar efectos o cambiar de turno
         yield return new WaitForSeconds(1.0f);
 
@@ -259,7 +258,17 @@ public class GameManager : MonoBehaviour
 
             if (casilleroActual.Tipo == TipoCasillero.Pregunta){
                 EsperandoRespuesta = true;
-                yield break;
+
+                if (UIPreguntas.Instancia != null){
+                    UIPreguntas.Instancia.MostrarPregunta(jugador);
+                }
+                else{
+                    Debug.LogError("[GameManager] No existe UIPreguntas.");
+                    EsperandoRespuesta = false;
+                    SiguienteTurno();
+                }
+
+            yield break;
             }
         }
 
