@@ -3,34 +3,60 @@ using UnityEngine;
 
 public class TableroManager : MonoBehaviour
 {
-    // Lista Lógica de Casilleros
-    public List<CasilleroBase> ListaCasilleros { get; private set; } = new List<CasilleroBase>();
+    public List<CasilleroBase> ListaCasilleros{
+        get;
+        private set;
+    } 
+    = new List<CasilleroBase>();
 
-    private void Awake()
-    {
-        InicializarTablero();
+
+    public void InicializarTablero(int cantidadCasilleros){
+        ListaCasilleros.Clear();
+
+        if (cantidadCasilleros <= 0)
+            return;
+
+
+        for (int i = 0;
+            i < cantidadCasilleros;i++){
+            int siguiente = i + 1;
+
+            List<int> siguientesIds;
+
+            if (i == cantidadCasilleros - 1){
+                siguientesIds = new List<int>();
+            }
+            else{
+                siguientesIds = new List<int>{
+                    siguiente
+                };
+            }
+
+            if (i == 0 || i == cantidadCasilleros - 1){
+                ListaCasilleros.Add(new CasilleroNormal(i,siguientesIds));
+            }
+            else if (i % 3 == 0){
+                ListaCasilleros.Add(new CasilleroPregunta(i,siguientesIds));
+            }
+            else if (i % 5 == 0){
+                ListaCasilleros.Add(new CasilleroEspecial(i,siguientesIds));
+            }
+            else{
+                ListaCasilleros.Add(new CasilleroNormal(i,siguientesIds));
+            }
+        }
     }
 
-    private void InicializarTablero()
-    {
-        // Ejemplo creando casilleros en la lista:
-        // Casillero 0: Normal -> apunta al casillero 1
-        ListaCasilleros.Add(new CasilleroNormal(0, new List<int> { 1 }));
 
-        // Casillero 1: Pregunta Multiple Choice -> apunta al casillero 2
-        ListaCasilleros.Add(new CasilleroPregunta(1, new List<int> { 2 }));
-
-        // Casillero 2: Especial Aleatorio -> apunta al casillero 3
-        ListaCasilleros.Add(new CasilleroEspecial(2, new List<int> { 3 }));
+    public CasilleroBase ObtenerCasillero(int idCasillero){
+        return ListaCasilleros.Find(c => c.Id == idCasillero);
     }
 
-    // Método para activar la lógica al aterrizar en un casillero
-    public void EvaluarCasillero(int idCasillero, Jugador jugador)
-    {
-        CasilleroBase casilleroActual = ListaCasilleros.Find(c => c.Id == idCasillero);
-        
-        if (casilleroActual != null)
-        {
+
+    public void EvaluarCasillero(int idCasillero,Jugador jugador){
+        CasilleroBase casilleroActual = ObtenerCasillero(idCasillero);
+
+        if (casilleroActual != null){
             casilleroActual.EjecutarEfecto(jugador);
         }
     }

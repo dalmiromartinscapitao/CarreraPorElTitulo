@@ -23,9 +23,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Configuración del Tablero")]
     public Transform contenedorCasillas;
+    public TableroManager tableroManager;
 
     private Vector3[] rutaPosiciones;
-
     private ConfiguracionPartida configuracion;
 
     private void Awake(){
@@ -51,19 +51,31 @@ public class GameManager : MonoBehaviour
 
         ObtenerRutaDesdeContenedor();
         InicializarJugadores();
-        InicializarTablero();
+
+        if (tableroManager == null){
+            tableroManager = GetComponent<TableroManager>();
+        }
+
+        if (tableroManager == null){
+            Debug.LogError("[GameManager] No se encontró TableroManager.");
+            return;
+        }
+
+        tableroManager.InicializarTablero(rutaPosiciones.Length);
+
+        tablero = tableroManager.ListaCasilleros;
 
         if (UIPreguntas.Instancia != null){
             UIPreguntas.Instancia.RespuestaProcesada += ProcesarRespuestaPregunta;
         }
 
         for (int i = 0;
-        i < fichasVisuales3D.Length;
+        i < jugadores.Count;
         i++){
-            if (fichasVisuales3D[i] != null &&
-            rutaPosiciones.Length > 0)
-            {
-            fichasVisuales3D[i].SincronizarPosicion(0,rutaPosiciones);
+            if (i < fichasVisuales3D.Length &&
+            fichasVisuales3D[i] != null &&
+            rutaPosiciones.Length > 0){
+                fichasVisuales3D[i].SincronizarPosicion(0,rutaPosiciones);
             }
         }
 
@@ -107,37 +119,22 @@ public class GameManager : MonoBehaviour
     }
 
     private void InicializarJugadores(){
-        jugadores.Add(new Jugador(1, "Jugador Rojo", configuracion));
-        jugadores.Add(new Jugador(2, "Jugador Azul", configuracion));
-        jugadores.Add(new Jugador(3, "Jugador Verde", configuracion));
-        jugadores.Add(new Jugador(4, "Jugador Amarillo", configuracion));
-    }
+        jugadores.Clear();
 
-    private void InicializarTablero(){
+        string[] nombres ={
+            "Jugador Rojo",
+            "Jugador Azul",
+            "Jugador Verde",
+            "Jugador Amarillo"
+        };
 
-        int cantidadCasilleros = rutaPosiciones.Length;
+        int cantidadJugadores = SesionPartida.CantidadJugadores;
 
         for (int i = 0;
-            i < cantidadCasilleros;
-            i++){
-
-            int siguiente = i + 1;
-            List<int> siguientesIds = (i == cantidadCasilleros - 1)?new List<int>():new List<int>{
-                siguiente
-            };
-
-            if (i == 0 || i == cantidadCasilleros - 1){
-                tablero.Add(new CasilleroNormal(i,siguientesIds));
-            }
-            else if (i % 3 == 0){
-                tablero.Add(new CasilleroPregunta(i,siguientesIds));
-            }
-            else if (i % 5 == 0){
-                tablero.Add(new CasilleroEspecial(i,siguientesIds));
-            }
-            else{
-                tablero.Add(new CasilleroNormal(i,siguientesIds));
-            }
+        i < cantidadJugadores;
+        i++
+        ){
+            jugadores.Add(new Jugador(i + 1,nombres[i],configuracion));
         }
     }
 
@@ -208,13 +205,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        int resultado = Random.Range(1, 7);
-        jugador.RegistrarTirada(resultado);
-
-        if (resultado <= 0){
+        if (jugador.EstaPenalizado()){
+            jugador.CumplirPenalizacion();
             SiguienteTurno();
             return;
         }
+
+        int resultado = Random.Range(1, 7);
+        jugador.RegistrarTirada(resultado);
 
         int posicionAnterior = jugador.PosicionActualId;
         int ultimaPosicion = tablero.Count - 1;
