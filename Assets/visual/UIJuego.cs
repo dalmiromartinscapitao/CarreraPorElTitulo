@@ -5,11 +5,6 @@ public class UIJuego : MonoBehaviour
 {
     public static UIJuego Instancia;
 
-
-    // =========================================================
-    // TEXTOS DE LA INTERFAZ
-    // =========================================================
-
     [Header("Turno actual")]
     public TextMeshProUGUI textoTurno;
 
@@ -25,11 +20,6 @@ public class UIJuego : MonoBehaviour
     public GameObject cuadroResultado;
     public TextMeshProUGUI textoResultado;
 
-
-    // =========================================================
-    // AWAKE
-    // =========================================================
-
     private void Awake()
     {
         Instancia = this;
@@ -42,20 +32,11 @@ public class UIJuego : MonoBehaviour
         }
     }
 
-
-    // =========================================================
-    // ACTUALIZAR TODA LA INTERFAZ
-    // =========================================================
-
     public void ActualizarInterfaz()
     {
         if (GameManager.Instancia == null)
             return;
 
-
-        // -----------------------------------------------------
-        // JUGADOR ACTUAL
-        // -----------------------------------------------------
 
         Jugador jugadorActual =
             GameManager.Instancia
@@ -66,11 +47,6 @@ public class UIJuego : MonoBehaviour
         {
             ActualizarTurno(jugadorActual);
         }
-
-
-        // -----------------------------------------------------
-        // JUGADORES
-        // -----------------------------------------------------
 
         ActualizarJugador(
             GameManager.Instancia.ObtenerJugador(0),
@@ -97,10 +73,6 @@ public class UIJuego : MonoBehaviour
     }
 
 
-    // =========================================================
-    // ACTUALIZAR TURNO
-    // =========================================================
-
     private void ActualizarTurno(
         Jugador jugador
     )
@@ -121,11 +93,6 @@ public class UIJuego : MonoBehaviour
             $"TURNO DE: {simbolo} {nombre}";
     }
 
-
-    // =========================================================
-    // ACTUALIZAR INFORMACIÓN DE UN JUGADOR
-    // =========================================================
-
     private void ActualizarJugador(Jugador jugador,TextMeshProUGUI texto){
 
         if (jugador == null || texto == null)
@@ -144,11 +111,6 @@ public class UIJuego : MonoBehaviour
             $"Vuelta {jugador.RondaActual}/" +
             $"{vueltasTotales}";
     }
-
-
-    // =========================================================
-    // MOSTRAR RESULTADO DE PREGUNTA
-    // =========================================================
 
     public void MostrarResultado(
         Jugador jugador,
@@ -196,11 +158,6 @@ public class UIJuego : MonoBehaviour
         ActualizarInterfaz();
     }
 
-
-    // =========================================================
-    // NOMBRE CORTO
-    // =========================================================
-
     private string ObtenerNombreCorto(
         string nombreCompleto
     )
@@ -220,10 +177,6 @@ public class UIJuego : MonoBehaviour
         return nombreCompleto.ToUpper();
     }
 
-
-    // =========================================================
-    // SÍMBOLO DEL JUGADOR
-    // =========================================================
 
     private string ObtenerSimbolo(
         int id
@@ -248,10 +201,6 @@ public class UIJuego : MonoBehaviour
         }
     }
 
-
-    // =========================================================
-    // TEXTO "RESPUESTA / RESPUESTAS"
-    // =========================================================
 
     private string TextoRespuestas(
         int cantidad

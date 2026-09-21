@@ -208,7 +208,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        int resultado = jugador.LanzarDado();
+        int resultado = Random.Range(1, 7);
+        jugador.RegistrarTirada(resultado);
 
         if (resultado <= 0){
             SiguienteTurno();

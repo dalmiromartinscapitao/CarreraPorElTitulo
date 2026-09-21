@@ -11,11 +11,6 @@ public class CamaraSigue : MonoBehaviour
     [Header("Suavizado del movimiento")]
     public float velocidadSuavizado = 5f;
 
-
-    // =========================================================
-    // CAMBIAR EL OBJETIVO DE LA CÁMARA
-    // =========================================================
-
     public void SeguirJugador(Transform nuevoObjetivo)
     {
         objetivo = nuevoObjetivo;
@@ -29,10 +24,6 @@ public class CamaraSigue : MonoBehaviour
         }
     }
 
-
-    // =========================================================
-    // SEGUIR AL JUGADOR
-    // =========================================================
 
     private void LateUpdate()
     {
