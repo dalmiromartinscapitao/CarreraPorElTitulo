@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     private List<CasilleroBase> tablero = new List<CasilleroBase>();
     private List<Jugador> jugadores = new List<Jugador>();
     private int jugadorActual = 0;
+    private GestorVueltas gestorVueltas;
 
     public bool EsperandoRespuesta { get; private set; } = false;
     public bool JuegoTerminado { get; private set; } = false;
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour
 
         Instancia = this;
         configuracion = ConfiguracionPartida.Crear(SesionPartida.ModoSeleccionado);
+        gestorVueltas = new GestorVueltas(configuracion);
     }
 
     private void Start(){
@@ -391,50 +393,24 @@ public class GameManager : MonoBehaviour
         SiguienteTurno();
     }
 
-    private System.Collections.IEnumerator EsperarYContinuarVuelta(Jugador jugador)
-    {
-        // Espera 1 segundo al llegar al final
+    private System.Collections.IEnumerator EsperarYContinuarVuelta(Jugador jugador){
+
         yield return new WaitForSeconds(1.0f);
 
-        Debug.Log(
-        $"[FINAL DE VUELTA] {jugador.Nombre} | " +
-        $"Ronda: {jugador.RondaActual} | " +
-        $"Correctas: {jugador.RespuestasCorrectas} | " +
-        $"Objetivo: {jugador.ObtenerObjetivoDeRonda()} | " +
-        $"Debe repetir: {jugador.DebeRepetirPreguntas}"
-        );
+        ResultadoVuelta resultado = gestorVueltas.ResolverLlegadaMeta(jugador);
 
-        if (
-            !jugador.TieneRespuestasNecesarias()
-        )
-        {
-            jugador.IntentarCompletarVuelta();
+        if (resultado == ResultadoVuelta.NecesitaPreguntas){
             SiguienteTurno();
             yield break;
         }
 
-        int rondaAntes =
-            jugador.RondaActual;
-        bool completo =
-            jugador.IntentarCompletarVuelta();
-        
-        if (!completo)
-        {
-            SiguienteTurno();
-            yield break;
-        }
-
-        if (configuracion.EsUltimaVuelta(rondaAntes))
-        {
+        if (resultado == ResultadoVuelta.Gano){
             FinalizarJuego(jugador);
             yield break;
         }
 
-        MoverFichaAIndice(
-            jugadorActual,
-            jugador.PosicionActualId
-        );
-        
+        MoverFichaAIndice(jugadorActual,jugador.PosicionActualId);
+
         SiguienteTurno();
     }
 
@@ -516,22 +492,14 @@ public class GameManager : MonoBehaviour
         bool estaEnLaUltimaCasilla = jugador.PosicionActualId >= tablero.Count - 1;
 
         if (jugador.DebeRepetirPreguntas || estaEnLaUltimaCasilla){
-            if (!jugador.TieneRespuestasNecesarias()){
-            jugador.IntentarCompletarVuelta();
-            SiguienteTurno();
-            return;
+            ResultadoVuelta resultado = gestorVueltas.ResolverLlegadaMeta(jugador);
+
+            if (resultado == ResultadoVuelta.NecesitaPreguntas){
+                SiguienteTurno();
+                return;
             }
 
-            int rondaAntes = jugador.RondaActual;
-
-            bool completo = jugador.IntentarCompletarVuelta();
-
-            if (!completo){
-            SiguienteTurno();
-            return;
-            }
-
-            if (configuracion.EsUltimaVuelta(rondaAntes)){
+            if (resultado == ResultadoVuelta.Gano){
             FinalizarJuego(jugador);
             return;
             }
