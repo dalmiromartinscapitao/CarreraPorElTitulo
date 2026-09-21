@@ -213,6 +213,10 @@ public class GameManager : MonoBehaviour
         return jugadores[jugadorActual];
     }
 
+    public int ObtenerVueltasTotales(){
+        return configuracion.VueltasTotales;
+    }
+
     private void MostrarJugadorActual()
     {
         if (JuegoTerminado)
@@ -238,7 +242,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log(
             $"[TURNO] {jugador.Nombre} | " +
-            $"Vuelta: {jugador.RondaActual}/3 | " +
+            $"Vuelta: {jugador.RondaActual}/" + $"{configuracion.VueltasTotales} | " +
             $"Correctas: {jugador.RespuestasCorrectas} | " +
             $"Objetivo: {jugador.ObtenerObjetivoDeRonda()} | " +
             $"Casillero: {jugador.PosicionActualId + 1}"

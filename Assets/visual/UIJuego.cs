@@ -126,28 +126,23 @@ public class UIJuego : MonoBehaviour
     // ACTUALIZAR INFORMACIÓN DE UN JUGADOR
     // =========================================================
 
-    private void ActualizarJugador(
-        Jugador jugador,
-        TextMeshProUGUI texto
-    )
-    {
+    private void ActualizarJugador(Jugador jugador,TextMeshProUGUI texto){
+
         if (jugador == null || texto == null)
             return;
 
+        string nombre = ObtenerNombreCorto(jugador.Nombre);
 
-        string nombre =
-            ObtenerNombreCorto(jugador.Nombre);
+        string simbolo = ObtenerSimbolo(jugador.Id);
 
-
-        string simbolo =
-            ObtenerSimbolo(jugador.Id);
-
+        int vueltasTotales = GameManager.Instancia.ObtenerVueltasTotales();
 
         texto.text =
             $"{simbolo} {nombre}\n" +
             $"{jugador.RespuestasCorrectas} " +
             $"{TextoRespuestas(jugador.RespuestasCorrectas)}\n" +
-            $"Vuelta {jugador.RondaActual}/3";
+            $"Vuelta {jugador.RondaActual}/" +
+            $"{vueltasTotales}";
     }
 
 
