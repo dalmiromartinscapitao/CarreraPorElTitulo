@@ -27,57 +27,66 @@ public class GameManager : MonoBehaviour
 
     private ConfiguracionPartida configuracion;
 
-    private void Awake()
-    {
-        if (Instancia != null && Instancia != this)
-        {
-        Destroy(gameObject);
-        return;
+    private void Awake(){
+        if (Instancia != null && Instancia != this){
+            Destroy(gameObject);
+            return;
         }
 
         Instancia = this;
-
         configuracion = ConfiguracionPartida.Crear(SesionPartida.ModoSeleccionado);
-}
+    }
 
-    private void Start()
-    {
-        Debug.Log(
-            "--- INICIANDO JUEGO DE LA OCA ---"
-        );
-        if (contenedorCasillas == null)
-        {
-            Debug.LogError(
-                "[GameManager] No se asignó el " +
-                "Contenedor de Casillas."
-            );
+    private void Start(){
+        Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
 
+        if (contenedorCasillas == null){
+            Debug.LogError("[GameManager] No se asignó el " + "Contenedor de Casillas.");
             return;
         }
+
         ObtenerRutaDesdeContenedor();
         InicializarJugadores();
         InicializarTablero();
 
-        for (
-            int i = 0;
-            i < fichasVisuales3D.Length;
-            i++
-        )
+        if (UIPreguntas.Instancia != null){
+            UIPreguntas.Instancia.RespuestaProcesada += ProcesarRespuestaPregunta;
+        }
+
+        for (int i = 0;
+        i < fichasVisuales3D.Length;
+        i++)
         {
-            if (
-                fichasVisuales3D[i] != null &&
-                rutaPosiciones.Length > 0
-            )
-            {
-                fichasVisuales3D[i]
-                    .SincronizarPosicion(
-                        0,
-                        rutaPosiciones
-                    );
-            }
+        if (fichasVisuales3D[i] != null &&
+            rutaPosiciones.Length > 0)
+        {
+            fichasVisuales3D[i].SincronizarPosicion(0,rutaPosiciones);
+        }
         }
 
         MostrarJugadorActual();
+    }
+
+    private void ProcesarRespuestaPregunta(Jugador jugador,bool esCorrecta){
+
+        if (jugador == null){
+            Debug.LogWarning("[GameManager] Jugador nulo al procesar respuesta.");
+
+            return;
+        }
+
+        if (esCorrecta){
+            Debug.Log($"[RESPUESTA] {jugador.Nombre} " + "respondió correctamente.");
+        }
+        else{
+            Debug.Log($"[RESPUESTA] {jugador.Nombre} " +"respondió incorrectamente.");
+        }
+
+        if (UIJuego.Instancia != null){
+            UIJuego.Instancia.MostrarResultado(jugador,esCorrecta);
+        }
+
+        ReanudarTurno();
     }
 
     private void ObtenerRutaDesdeContenedor()
@@ -383,6 +392,14 @@ public class GameManager : MonoBehaviour
         // Espera 1 segundo al llegar al final
         yield return new WaitForSeconds(1.0f);
 
+        Debug.Log(
+        $"[FINAL DE VUELTA] {jugador.Nombre} | " +
+        $"Ronda: {jugador.RondaActual} | " +
+        $"Correctas: {jugador.RespuestasCorrectas} | " +
+        $"Objetivo: {jugador.ObtenerObjetivoDeRonda()} | " +
+        $"Debe repetir: {jugador.DebeRepetirPreguntas}"
+        );
+
         if (
             !jugador.TieneRespuestasNecesarias()
         )
@@ -474,48 +491,50 @@ public class GameManager : MonoBehaviour
         );
     }
 
-    public void ReanudarTurno()
-    {
-        if (JuegoTerminado)
-            return;
-            
-        EsperandoRespuesta = false;
-        Jugador jugador =
-            jugadores[jugadorActual];
+    public void ReanudarTurno(){
 
-        if (jugador.DebeRepetirPreguntas)
-        {
-            if (
-                !jugador.TieneRespuestasNecesarias()
-            )
-            {
-                SiguienteTurno();
-                return;
-            }
-            
-            int rondaAntes =
-                jugador.RondaActual;
-            bool completo =
-                jugador.IntentarCompletarVuelta();
-                
-            if (!completo)
-            {
-                SiguienteTurno();
-                return;
-            }
-            
-            if (configuracion.EsUltimaVuelta(rondaAntes))
-            {
-                FinalizarJuego(jugador);
-                return;
-            }
-            
-            MoverFichaAIndice(
-                jugadorActual,
-                jugador.PosicionActualId
-            );
+        Debug.Log("[FLUJO] ReanudarTurno fue llamado.");
+
+
+        if (JuegoTerminado){
+        return;
         }
-        
+
+        EsperandoRespuesta = false;
+
+        Jugador jugador = jugadores[jugadorActual];
+
+        Debug.Log($"[REANUDAR] {jugador.Nombre} | " +
+        $"Ronda: {jugador.RondaActual} | " +
+        $"Correctas: {jugador.RespuestasCorrectas} | " +
+        $"Debe repetir: {jugador.DebeRepetirPreguntas}");
+    
+        bool estaEnLaUltimaCasilla = jugador.PosicionActualId >= tablero.Count - 1;
+
+        if (jugador.DebeRepetirPreguntas || estaEnLaUltimaCasilla){
+            if (!jugador.TieneRespuestasNecesarias()){
+            jugador.IntentarCompletarVuelta();
+            SiguienteTurno();
+            return;
+            }
+
+            int rondaAntes = jugador.RondaActual;
+
+            bool completo = jugador.IntentarCompletarVuelta();
+
+            if (!completo){
+            SiguienteTurno();
+            return;
+            }
+
+            if (configuracion.EsUltimaVuelta(rondaAntes)){
+            FinalizarJuego(jugador);
+            return;
+            }
+
+            MoverFichaAIndice(jugadorActual,jugador.PosicionActualId);
+        }
+
         SiguienteTurno();
     }
 
