@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     private ConfiguracionPartida configuracion;
 
     private void Awake(){
+
         if (Instancia != null && Instancia != this){
             Destroy(gameObject);
             return;
@@ -40,6 +41,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void Start(){
+
         Debug.Log("--- INICIANDO JUEGO DE LA OCA ---");
 
         if (contenedorCasillas == null){
@@ -57,13 +59,12 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0;
         i < fichasVisuales3D.Length;
-        i++)
-        {
-        if (fichasVisuales3D[i] != null &&
+        i++){
+            if (fichasVisuales3D[i] != null &&
             rutaPosiciones.Length > 0)
-        {
+            {
             fichasVisuales3D[i].SincronizarPosicion(0,rutaPosiciones);
-        }
+            }
         }
 
         MostrarJugadorActual();
@@ -91,124 +92,65 @@ public class GameManager : MonoBehaviour
         ReanudarTurno();
     }
 
-    private void ObtenerRutaDesdeContenedor()
-    {
-        int cantidad =
-            contenedorCasillas.childCount;
+    private void ObtenerRutaDesdeContenedor(){
 
-        rutaPosiciones =
-            new Vector3[cantidad];
+        int cantidad = contenedorCasillas.childCount;
+        rutaPosiciones = new Vector3[cantidad];
 
-        for (
-            int i = 0;
-            i < cantidad;
-            i++
-        )
-        {
-            rutaPosiciones[i] =
-                contenedorCasillas
-                    .GetChild(i)
-                    .position;
+        for (int i = 0;
+        i < cantidad;
+        i++){
+            rutaPosiciones[i] = contenedorCasillas
+            .GetChild(i)
+            .position;
         }
     }
 
-    private void InicializarJugadores()
-    {
+    private void InicializarJugadores(){
         jugadores.Add(new Jugador(1, "Jugador Rojo", configuracion));
         jugadores.Add(new Jugador(2, "Jugador Azul", configuracion));
         jugadores.Add(new Jugador(3, "Jugador Verde", configuracion));
         jugadores.Add(new Jugador(4, "Jugador Amarillo", configuracion));
     }
 
-    private void InicializarTablero()
-    {
-        int cantidadCasilleros =
-            rutaPosiciones.Length;
+    private void InicializarTablero(){
 
-        for (
-            int i = 0;
+        int cantidadCasilleros = rutaPosiciones.Length;
+
+        for (int i = 0;
             i < cantidadCasilleros;
-            i++
-        )
-        {
-            int siguiente =
-                i + 1;
+            i++){
 
-            List<int> siguientesIds =
-                (
-                    i ==
-                    cantidadCasilleros - 1
-                )
-                ?
-                new List<int>()
-                :
-                new List<int>
-                {
-                    siguiente
-                };
+            int siguiente = i + 1;
+            List<int> siguientesIds = (i == cantidadCasilleros - 1)?new List<int>():new List<int>{
+                siguiente
+            };
 
-            if (
-                i == 0 ||
-                i == cantidadCasilleros - 1
-            )
-            {
-                tablero.Add(
-                    new CasilleroNormal(
-                        i,
-                        siguientesIds
-                    )
-                );
+            if (i == 0 || i == cantidadCasilleros - 1){
+                tablero.Add(new CasilleroNormal(i,siguientesIds));
             }
-            else if (i % 3 == 0)
-            {
-                tablero.Add(
-                    new CasilleroPregunta(
-                        i,
-                        siguientesIds
-                    )
-                );
+            else if (i % 3 == 0){
+                tablero.Add(new CasilleroPregunta(i,siguientesIds));
             }
-            else if (i % 5 == 0)
-            {
-                tablero.Add(
-                    new CasilleroEspecial(
-                        i,
-                        siguientesIds
-                    )
-                );
+            else if (i % 5 == 0){
+                tablero.Add(new CasilleroEspecial(i,siguientesIds));
             }
-            else
-            {
-                tablero.Add(
-                    new CasilleroNormal(
-                        i,
-                        siguientesIds
-                    )
-                );
+            else{
+                tablero.Add(new CasilleroNormal(i,siguientesIds));
             }
         }
     }
 
-    public Jugador ObtenerJugador(int indice)
-    {
-        if (
-            indice < 0 ||
-            indice >= jugadores.Count
-        )
-        {
+    public Jugador ObtenerJugador(int indice){
+        if (indice < 0 || indice >= jugadores.Count){
             return null;
         }
 
         return jugadores[indice];
     }
 
-    public Jugador ObtenerJugadorActual()
-    {
-        if (
-            jugadorActual < 0 ||
-            jugadorActual >= jugadores.Count
-        )
-        {
+    public Jugador ObtenerJugadorActual(){
+        if (jugadorActual < 0 || jugadorActual >= jugadores.Count){
             return null;
         }
 
@@ -219,22 +161,18 @@ public class GameManager : MonoBehaviour
         return configuracion.VueltasTotales;
     }
 
-    private void MostrarJugadorActual()
-    {
+    private void MostrarJugadorActual(){
         if (JuegoTerminado)
             return;
 
-        Jugador jugador =
-            jugadores[jugadorActual];
+        Jugador jugador = jugadores[jugadorActual];
 
         // Asignamos directamente el objetivo a la cámara de forma segura
-        if (
-            camaraPrincipalScript != null &&
+        if (camaraPrincipalScript != null &&
             jugadorActual >= 0 &&
             jugadorActual < fichasVisuales3D.Length &&
-            fichasVisuales3D[jugadorActual] != null
-        )
-        {
+            fichasVisuales3D[jugadorActual] != null){
+
             Transform nuevaFicha = fichasVisuales3D[jugadorActual].transform;
             camaraPrincipalScript.objetivo = nuevaFicha;
             
@@ -242,149 +180,84 @@ public class GameManager : MonoBehaviour
             camaraPrincipalScript.transform.position = nuevaFicha.position + camaraPrincipalScript.offset;
         }
 
-        Debug.Log(
-            $"[TURNO] {jugador.Nombre} | " +
+        Debug.Log($"[TURNO] {jugador.Nombre} | " +
             $"Vuelta: {jugador.RondaActual}/" + $"{configuracion.VueltasTotales} | " +
             $"Correctas: {jugador.RespuestasCorrectas} | " +
             $"Objetivo: {jugador.ObtenerObjetivoDeRonda()} | " +
-            $"Casillero: {jugador.PosicionActualId + 1}"
-        );
+            $"Casillero: {jugador.PosicionActualId + 1}");
 
-        if (UIJuego.Instancia != null)
-        {
+        if (UIJuego.Instancia != null){
             UIJuego.Instancia.ActualizarInterfaz();
         }
     }
 
-    public void TirarDado()
-    {
+    public void TirarDado(){
         if (JuegoTerminado)
             return;
 
-        if (
-            contenedorCasillas == null ||
-            EsperandoRespuesta
-        )
-        {
+        if (contenedorCasillas == null || EsperandoRespuesta){
             return;
         }
 
-        Jugador jugador =
-            jugadores[jugadorActual];
+        Jugador jugador = jugadores[jugadorActual];
 
-        if (jugador.DebeRepetirPreguntas)
-        {
+        if (jugador.DebeRepetirPreguntas){
             EsperandoRespuesta = true;
-            UIPreguntas.Instancia
-                .MostrarPregunta(jugador);
+            UIPreguntas.Instancia.MostrarPregunta(jugador);
 
             return;
         }
 
-        int resultado =
-            jugador.LanzarDado();
+        int resultado = jugador.LanzarDado();
 
-        if (resultado <= 0)
-        {
+        if (resultado <= 0){
             SiguienteTurno();
             return;
         }
 
-        int posicionAnterior =
-            jugador.PosicionActualId;
+        int posicionAnterior = jugador.PosicionActualId;
+        int ultimaPosicion = tablero.Count - 1;
+        int posicionCalculada = posicionAnterior + resultado;
 
-        int ultimaPosicion =
-            tablero.Count - 1;
+        if (posicionCalculada >= ultimaPosicion){
+            jugador.EstablecerPosicion(ultimaPosicion);
 
-        int posicionCalculada =
-            posicionAnterior + resultado;
-
-        if (
-            posicionCalculada >=
-            ultimaPosicion
-        )
-        {
-            jugador.EstablecerPosicion(
-                ultimaPosicion
-            );
-
-            MoverFichaAIndiceConCallback(
-                jugadorActual,
-                ultimaPosicion,
-                () => {
-                    StartCoroutine(EsperarYContinuarVuelta(jugador));
-                }
-            );
+            MoverFichaAIndiceConCallback(jugadorActual,ultimaPosicion,() => {
+            StartCoroutine(EsperarYContinuarVuelta(jugador));
+            });
             return;
         }
 
-        jugador.Moverse(
-            resultado,
-            tablero.Count
-        );
+        jugador.Moverse(resultado,tablero.Count);
 
-        MoverFichaAIndiceConCallback(
-            jugadorActual,
-            jugador.PosicionActualId,
-            () => {
-                StartCoroutine(EsperarYProcesarCasillero(jugador));
-            }
-        );
+        MoverFichaAIndiceConCallback(jugadorActual,jugador.PosicionActualId,() => {
+        StartCoroutine(EsperarYProcesarCasillero(jugador));
+        });
     }
-
-    // =========================================================
-    // CORRUTINAS DE PAUSA DESPUÉS DEL MOVIMIENTO
-    // =========================================================
 
     private System.Collections.IEnumerator EsperarYProcesarCasillero(Jugador jugador)
     {
         // Espera 1 segundo antes de ejecutar efectos o cambiar de turno
         yield return new WaitForSeconds(1.0f);
 
-        CasilleroBase casilleroActual =
-            tablero.Find(
-                c =>
-                    c.Id ==
-                    jugador.PosicionActualId
-            );
+        CasilleroBase casilleroActual = tablero.Find(c => c.Id == jugador.PosicionActualId);
 
-        if (casilleroActual != null)
-        {
-            casilleroActual.EjecutarEfecto(
-                jugador
-            );
+        if (casilleroActual != null){
+            casilleroActual.EjecutarEfecto(jugador);
 
-            if (
-                casilleroActual.Tipo ==
-                TipoCasillero.EfectoEspecial
-            )
-            {
-                if (jugador.PosicionActualId < 0)
-                {
+            if (casilleroActual.Tipo == TipoCasillero.EfectoEspecial){
+                if (jugador.PosicionActualId < 0){
                     jugador.EstablecerPosicion(0);
                 }
 
-                if (
-                    jugador.PosicionActualId >=
-                    tablero.Count
-                )
-                {
-                    jugador.EstablecerPosicion(
-                        tablero.Count - 1
-                    );
+                if (jugador.PosicionActualId >= tablero.Count){
+                    jugador.EstablecerPosicion(tablero.Count - 1);
                 }
 
-                MoverFichaAIndice(
-                    jugadorActual,
-                    jugador.PosicionActualId
-                );
+                MoverFichaAIndice(jugadorActual,jugador.PosicionActualId);
             }
 
-            if (
-                casilleroActual.Tipo ==
-                TipoCasillero.Pregunta
-            )
-            {
+            if (casilleroActual.Tipo == TipoCasillero.Pregunta){
                 EsperandoRespuesta = true;
                 yield break;
             }
@@ -410,74 +283,45 @@ public class GameManager : MonoBehaviour
         }
 
         MoverFichaAIndice(jugadorActual,jugador.PosicionActualId);
-
         SiguienteTurno();
     }
 
-    private void MoverFichaAIndice(
-        int indiceJugador,
-        int indiceCasillero
-    )
-    {
+    private void MoverFichaAIndice(int indiceJugador,int indiceCasillero){
         MoverFichaAIndiceConCallback(indiceJugador, indiceCasillero, null);
     }
 
-    private void MoverFichaAIndiceConCallback(
-        int indiceJugador,
-        int indiceCasillero,
-        System.Action alTerminar
-    )
-    {
-        if (
-            indiceJugador < 0 ||
+    private void MoverFichaAIndiceConCallback(int indiceJugador,int indiceCasillero,System.Action alTerminar){
+        if (indiceJugador < 0 ||
             indiceJugador >= fichasVisuales3D.Length ||
             fichasVisuales3D[indiceJugador] == null ||
             rutaPosiciones == null ||
-            rutaPosiciones.Length == 0
-        )
-        {
+            rutaPosiciones.Length == 0){
+
             alTerminar?.Invoke();
             return;
         }
 
-        indiceCasillero =
-            Mathf.Clamp(
-                indiceCasillero,
-                0,
-                rutaPosiciones.Length - 1
-            );
+        indiceCasillero = Mathf.Clamp(indiceCasillero,0,rutaPosiciones.Length - 1);
 
-        fichasVisuales3D[indiceJugador]
-            .MoverAIndice(
-                indiceCasillero,
-                rutaPosiciones,
-                alTerminar
-            );
+        fichasVisuales3D[indiceJugador].MoverAIndice(indiceCasillero,rutaPosiciones,alTerminar);
     }
 
-    private void FinalizarJuego(
-        Jugador ganador
-    )
-    {
+    private void FinalizarJuego(Jugador ganador){
         JuegoTerminado = true;
         Ganador = ganador;
         ganador.MarcarComoGanador();
         EsperandoRespuesta = false;
         
-        VictoriaManager.NombreGanador =
-            ganador.Nombre;
-        SceneManager.LoadScene(
-            "Victoria"
-        );
+        VictoriaManager.NombreGanador = ganador.Nombre;
+        SceneManager.LoadScene("Victoria");
     }
 
     public void ReanudarTurno(){
 
         Debug.Log("[FLUJO] ReanudarTurno fue llamado.");
 
-
         if (JuegoTerminado){
-        return;
+            return;
         }
 
         EsperandoRespuesta = false;
@@ -516,11 +360,7 @@ public class GameManager : MonoBehaviour
             return;
 
         jugadorActual++;
-        if (
-            jugadorActual >=
-            jugadores.Count
-        )
-        {
+        if (jugadorActual >= jugadores.Count){
             jugadorActual = 0;
         }
         
