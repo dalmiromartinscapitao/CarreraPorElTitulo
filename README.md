@@ -92,3 +92,5 @@ Clic Izquierdo sobre Tirar Dado Generara un número aleatorio (1-6) e inicia el 
 Seleccionar respuesta haciendo clic Izquierdo sobre Opción (1 a 4).
 
 Reanuda el turno automáticamente al responder y cierra el panel de evaluación y pasa el turno al siguiente jugador.
+
+Link del drive con el ejecutable: https://drive.google.com/drive/folders/132RP03ld5TwQQGznN4EMnsVzOax-CuuN?usp=sharing
