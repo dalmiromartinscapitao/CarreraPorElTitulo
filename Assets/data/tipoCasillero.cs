@@ -2,5 +2,6 @@ public enum TipoCasillero
 {
     Normal,
     Pregunta,
-    EfectoEspecial
+    EfectoEspecial,
+    Juego
 }
