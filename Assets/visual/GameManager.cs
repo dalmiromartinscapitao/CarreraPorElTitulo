@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
     [Header("Script de la Cámara Principal")]
     public CamaraSigue camaraPrincipalScript;
 
+    [Header("Dado 3D")]
+    public DadoVisual dadoVisual;
+
     [Header("Configuración del Tablero")]
     public Transform contenedorCasillas;
     public TableroManager tableroManager;
@@ -199,9 +202,40 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Generamos el número de forma lógica
         int resultado = Random.Range(1, 7);
         jugador.RegistrarTirada(resultado);
 
+        // Bloqueamos la interfaz para evitar que el jugador presione el botón varias veces
+        EsperandoRespuesta = true; 
+
+        // Obtenemos la posición de la ficha actual para que el dado la siga
+        Transform fichaObjetivo = null;
+        if (jugadorActual < fichasVisuales3D.Length && fichasVisuales3D[jugadorActual] != null)
+        {
+            fichaObjetivo = fichasVisuales3D[jugadorActual].transform;
+        }
+
+        if (dadoVisual != null)
+        {
+            // Lanzamos la animación y usamos un Callback para que el movimiento ocurra SOLO cuando termine de girar
+            dadoVisual.Lanzar(resultado, fichaObjetivo, () => 
+            {
+                EsperandoRespuesta = false; // Liberamos la interfaz
+                ContinuarMovimiento(jugador, resultado);
+            });
+        }
+        else
+        {
+            // Sistema de seguridad por si olvidas asignar el dado en el inspector
+            EsperandoRespuesta = false;
+            ContinuarMovimiento(jugador, resultado);
+        }
+    }
+
+    // Toda la lógica de movimiento que antes estaba en TirarDado() ahora vive aquí
+    private void ContinuarMovimiento(Jugador jugador, int resultado)
+    {
         int posicionAnterior = jugador.PosicionActualId;
         int ultimaPosicion = tablero.Count - 1;
         int posicionCalculada = posicionAnterior + resultado;

@@ -851,6 +851,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1027830374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &131177599 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8590797020728164913, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+  m_PrefabInstance: {fileID: 1350999206}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &131177604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 131177599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dfaea2f9a79db54d8362d43596b832f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cara1: {x: -90, y: 0, z: 0}
+  cara2: {x: 0, y: 0, z: 90}
+  cara3: {x: 90, y: 0, z: 0}
+  cara4: {x: 0, y: 0, z: -90}
+  cara5: {x: 0, y: 0, z: 0}
+  cara6: {x: 180, y: 0, z: 0}
+  offsetDesdeJugador: {x: -1.5, y: 1, z: 0}
+  duracionGiro: 1.5
+  velocidadGiroAleatorio: 1200
+  tiempoLectura: 1.2
 --- !u!1 &147060433
 GameObject:
   m_ObjectHideFlags: 0
@@ -4857,6 +4884,78 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1027830374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1350999206
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.505
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.315
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.548
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289888296643403685, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8590797020728164913, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      propertyPath: m_Name
+      value: Dado
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8590797020728164913, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 131177604}
+  m_SourcePrefab: {fileID: 100100000, guid: 64fc38150e771aa4fb88bc2e7baadc16, type: 3}
 --- !u!1 &1363687401
 GameObject:
   m_ObjectHideFlags: 0
@@ -5639,6 +5738,7 @@ MonoBehaviour:
   - {fileID: 622245288}
   - {fileID: 1300485048}
   camaraPrincipalScript: {fileID: 1283801066}
+  dadoVisual: {fileID: 131177604}
   contenedorCasillas: {fileID: 1027830374}
   tableroManager: {fileID: 0}
 --- !u!4 &1653040335
@@ -7616,3 +7716,4 @@ SceneRoots:
   - {fileID: 1027830374}
   - {fileID: 1497192844}
   - {fileID: 606926792}
+  - {fileID: 1350999206}
