@@ -19,8 +19,8 @@ public class Jugador
         int id,
         string nombre,
         ConfiguracionPartida configuracionPartida,
-        int posicionInicialId = 0){
-
+        int posicionInicialId = 0)
+    {
         Id = id;
         Nombre = nombre;
         PosicionActualId = posicionInicialId;
@@ -30,49 +30,66 @@ public class Jugador
         TienePenalizacion = false;
     }
 
-    public bool EstaPenalizado(){
+    public bool EstaPenalizado()
+    {
         return TienePenalizacion;
     }
 
-    public void AplicarPenalizacion(){
+    public void AplicarPenalizacion()
+    {
         TienePenalizacion = true;
         Estado = "Penalizado";
     }
 
-    public void CumplirPenalizacion(){
+    public void CumplirPenalizacion()
+    {
         TienePenalizacion = false;
         Estado = "Esperando Turno";
     }
 
-    public void RegistrarTirada(int resultado){
-        if (resultado < 1 || resultado > 6){
-            throw new ArgumentException("El resultado del dado debe estar entre 1 y 6.");
+    public void RegistrarTirada(int resultado)
+    {
+        if (resultado < 1 || resultado > 6)
+        {
+            throw new ArgumentException(
+                "El resultado del dado debe estar entre 1 y 6."
+            );
         }
 
         Estado = $"Lanzó un {resultado}";
     }
 
-    public void Moverse(int casillerosAMover,int totalCasillerosTablero){
+    public void Moverse(
+        int casillerosAMover,
+        int totalCasillerosTablero)
+    {
         if (casillerosAMover <= 0)
             return;
 
         if (totalCasillerosTablero <= 0)
             return;
 
-        int nuevaPosicion = PosicionActualId + casillerosAMover;
-        int ultimaPosicion = totalCasillerosTablero - 1;
+        int nuevaPosicion =
+            PosicionActualId + casillerosAMover;
 
-        if (nuevaPosicion >= ultimaPosicion){
+        int ultimaPosicion =
+            totalCasillerosTablero - 1;
+
+        if (nuevaPosicion >= ultimaPosicion)
+        {
             PosicionActualId = ultimaPosicion;
         }
-        else{
+        else
+        {
             PosicionActualId = nuevaPosicion;
         }
 
-        Estado = $"En casillero {PosicionActualId + 1}";
+        Estado =
+            $"En casillero {PosicionActualId + 1}";
     }
 
-    public void EstablecerPosicion(int nuevaPosicion){
+    public void EstablecerPosicion(int nuevaPosicion)
+    {
         if (nuevaPosicion < 0)
             nuevaPosicion = 0;
 
@@ -82,48 +99,88 @@ public class Jugador
             $"En casillero {PosicionActualId + 1}";
     }
 
-
-    public void MoverInstantanio(int deltaCasilleros){
+    public void MoverInstantanio(int deltaCasilleros)
+    {
         PosicionActualId += deltaCasilleros;
 
-        if (PosicionActualId < 0){
+        if (PosicionActualId < 0)
+        {
             PosicionActualId = 0;
         }
 
-        Estado = $"En casillero {PosicionActualId + 1}";
+        Estado =
+            $"En casillero {PosicionActualId + 1}";
     }
 
-
-    public bool ResponderPregunta(int opcionSeleccionada,int opcionCorrecta){
-        bool esCorrecta = opcionSeleccionada == opcionCorrecta;
+    public bool ResponderPregunta(
+        int opcionSeleccionada,
+        int opcionCorrecta)
+    {
+        bool esCorrecta =
+            opcionSeleccionada == opcionCorrecta;
 
         RespuestasTotales++;
 
-        if (esCorrecta){
-            Estado = "Respondió Correctamente";
+        if (esCorrecta)
+        {
+            Estado =
+                "Respondió Correctamente";
+
             RespuestasCorrectas++;
         }
-        else{
-            Estado = "Respondió Incorrectamente";
+        else
+        {
+            Estado =
+                "Respondió Incorrectamente";
         }
 
         return esCorrecta;
     }
 
+    // =========================================================
+    // NUEVO
+    // Victoria obtenida mediante el minijuego
+    // =========================================================
 
-    public int ObtenerObjetivoDeRonda(){
-        return configuracion.ObtenerObjetivoDeVuelta(RondaActual);
+    public void SumarRespuestaPorMinijuego(){
+    {
+       
+    
+    RespuestasCorrectas++;
+    RespuestasTotales++;
+    
     }
 
+        Estado =
+            "Ganó el minijuego y obtuvo una respuesta";
 
-    public bool TieneRespuestasNecesarias(){
+        // Si ya tenía marcada la necesidad de repetir preguntas,
+        // verificamos si ahora puede cumplir el objetivo.
+        if (RespuestasCorrectas >= ObtenerObjetivoDeRonda())
+        {
+            DebeRepetirPreguntas = false;
+        }
+    }
+
+    public int ObtenerObjetivoDeRonda()
+    {
+        return configuracion.ObtenerObjetivoDeVuelta(
+            RondaActual
+        );
+    }
+
+    public bool TieneRespuestasNecesarias()
+    {
         return
-            RespuestasCorrectas >= ObtenerObjetivoDeRonda();
+            RespuestasCorrectas >=
+            ObtenerObjetivoDeRonda();
     }
 
-
-    public int ObtenerRespuestasFaltantes(){
-        int faltantes = ObtenerObjetivoDeRonda() - RespuestasCorrectas;
+    public int ObtenerRespuestasFaltantes()
+    {
+        int faltantes =
+            ObtenerObjetivoDeRonda() -
+            RespuestasCorrectas;
 
         if (faltantes < 0)
             faltantes = 0;
@@ -131,34 +188,37 @@ public class Jugador
         return faltantes;
     }
 
-
-    public bool IntentarCompletarVuelta(){
-        if (!TieneRespuestasNecesarias()){
+    public bool IntentarCompletarVuelta()
+    {
+        if (!TieneRespuestasNecesarias())
+        {
             DebeRepetirPreguntas = true;
             return false;
         }
 
-
-        if (configuracion.EsUltimaVuelta(RondaActual)){
+        if (configuracion.EsUltimaVuelta(RondaActual))
+        {
             DebeRepetirPreguntas = false;
             return true;
         }
 
-
         RondaActual++;
+
         RespuestasCorrectas = 0;
         RespuestasTotales = 0;
+
         DebeRepetirPreguntas = false;
+
         PosicionActualId = 0;
 
-        Estado = $"Comenzando la vuelta {RondaActual}";
+        Estado =
+            $"Comenzando la vuelta {RondaActual}";
 
         return true;
     }
 
-
-    public void MarcarComoGanador(){
-        
+    public void MarcarComoGanador()
+    {
         Gano = true;
         Estado = "¡GANÓ EL JUEGO!";
     }
