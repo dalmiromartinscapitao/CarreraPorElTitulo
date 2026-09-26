@@ -62,6 +62,10 @@ public class MenuBotones : MonoBehaviour{
     SceneManager.LoadScene("Configuracion");
     }
 
+    public void AbrirReglas(){
+    SceneManager.LoadScene("Reglas");
+    }
+
     public void SalirDeLaAplicacion(){
         Application.Quit();
     }
