@@ -24,73 +24,43 @@ public class UIJuego : MonoBehaviour
     {
         Instancia = this;
 
-
-        // El cuadro de resultado comienza oculto.
-        if (cuadroResultado != null)
-        {
+        if (cuadroResultado != null){
             cuadroResultado.SetActive(false);
         }
     }
 
-    public void ActualizarInterfaz()
-    {
+    public void ActualizarInterfaz(){
         if (GameManager.Instancia == null)
             return;
 
 
-        Jugador jugadorActual =
-            GameManager.Instancia
-                .ObtenerJugadorActual();
+        Jugador jugadorActual = GameManager.Instancia.ObtenerJugadorActual();
 
 
-        if (jugadorActual != null)
-        {
+        if (jugadorActual != null){
             ActualizarTurno(jugadorActual);
         }
 
-        ActualizarJugador(
-            GameManager.Instancia.ObtenerJugador(0),
-            textoRojo
-        );
+        ActualizarJugador(GameManager.Instancia.ObtenerJugador(0),textoRojo);
+
+        ActualizarJugador(GameManager.Instancia.ObtenerJugador(1),textoAzul);
+
+        ActualizarJugador(GameManager.Instancia.ObtenerJugador(2),textoVerde);
 
 
-        ActualizarJugador(
-            GameManager.Instancia.ObtenerJugador(1),
-            textoAzul
-        );
-
-
-        ActualizarJugador(
-            GameManager.Instancia.ObtenerJugador(2),
-            textoVerde
-        );
-
-
-        ActualizarJugador(
-            GameManager.Instancia.ObtenerJugador(3),
-            textoAmarillo
-        );
+        ActualizarJugador(GameManager.Instancia.ObtenerJugador(3),textoAmarillo);
     }
 
 
-    private void ActualizarTurno(
-        Jugador jugador
-    )
-    {
+    private void ActualizarTurno(Jugador jugador){
         if (textoTurno == null)
             return;
 
+        string nombre = ObtenerNombreCorto(jugador.Nombre);
 
-        string nombre =
-            ObtenerNombreCorto(jugador.Nombre);
+        string simbolo = ObtenerSimbolo(jugador.Id);
 
-
-        string simbolo =
-            ObtenerSimbolo(jugador.Id);
-
-
-        textoTurno.text =
-            $"TURNO DE: {simbolo} {nombre}";
+        textoTurno.text = $"TURNO DE: {simbolo} {nombre}";
     }
 
     private void ActualizarJugador(Jugador jugador,TextMeshProUGUI texto){
@@ -112,49 +82,83 @@ public class UIJuego : MonoBehaviour
             $"{vueltasTotales}";
     }
 
-    public void MostrarResultado(
-        Jugador jugador,
-        bool respuestaCorrecta
-    )
-    {
+    public void MostrarResultado(Jugador jugador,bool respuestaCorrecta){
         if (jugador == null)
             return;
 
+        string nombre = ObtenerNombreCorto(jugador.Nombre);
 
-        string nombre =
-            ObtenerNombreCorto(jugador.Nombre);
-
-
-        if (cuadroResultado != null)
-        {
+        if (cuadroResultado != null){
             cuadroResultado.SetActive(true);
         }
-
 
         if (textoResultado == null)
             return;
 
-
-        if (respuestaCorrecta)
-        {
+        if (respuestaCorrecta){
             textoResultado.text =
-                "<color=#4CAF50>" +
-                "¡RESPUESTA CORRECTA!" +
-                "</color>\n" +
-                $"{nombre} puede continuar";
+                $"{ObtenerSimbolo(jugador.Id)} " +
+                $"{nombre} respondió correctamente";
         }
-        else
-        {
+        else{
             textoResultado.text =
-                "<color=#F44336>" +
-                "RESPUESTA INCORRECTA" +
-                "</color>\n" +
-                $"{nombre} no sumó una respuesta";
+                $"{ObtenerSimbolo(jugador.Id)} " +
+                $"{nombre} respondió incorrectamente";
         }
 
+        ActualizarInterfaz();
+    }
 
-        // Actualizamos inmediatamente la cantidad
-        // de respuestas correctas.
+    public void MostrarMovimientoEspecial(Jugador jugador,int cantidadCasilleros){
+
+        if (jugador == null)
+            return;
+        
+        string nombre = ObtenerNombreCorto(jugador.Nombre);
+
+        if (cuadroResultado != null){
+            cuadroResultado.SetActive(true);
+        }
+
+        if (textoResultado == null)
+            return;
+
+        if (cantidadCasilleros > 0){
+            textoResultado.text =
+                $"{ObtenerSimbolo(jugador.Id)} " +
+                $"{nombre} avanza {cantidadCasilleros} " +
+                TextoCasilleros(cantidadCasilleros);
+        }
+        else if (cantidadCasilleros < 0)
+        {
+            int retroceso = Mathf.Abs(cantidadCasilleros);
+            
+            textoResultado.text =
+                $"{ObtenerSimbolo(jugador.Id)} " +
+                $"{nombre} retrocede {retroceso} " +
+                TextoCasilleros(retroceso) + ".";
+        }
+
+        ActualizarInterfaz();
+    }
+
+    public void MostrarPenalizacion(Jugador jugador){
+        if (jugador == null)
+            return;
+
+        string nombre = ObtenerNombreCorto(jugador.Nombre);
+
+        if (cuadroResultado != null){
+            cuadroResultado.SetActive(true);
+        }
+
+        if (textoResultado == null)
+            return;
+
+        textoResultado.text =
+            $"{ObtenerSimbolo(jugador.Id)} " +
+            $"{nombre} está penalizado y pierde un turno";
+
         ActualizarInterfaz();
     }
 
@@ -210,5 +214,16 @@ public class UIJuego : MonoBehaviour
             return "respuesta";
 
         return "respuestas";
+    }
+
+
+    private string TextoCasilleros(
+        int cantidad
+    )
+    {
+        if (cantidad == 1)
+            return "casillero";
+
+            return "casilleros";
     }
 }

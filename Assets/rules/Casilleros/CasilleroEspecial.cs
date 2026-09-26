@@ -3,10 +3,25 @@ using System.Collections.Generic;
 
 public class CasilleroEspecial : CasilleroBase
 {
-    private static readonly Random random = new Random();
+    private static readonly Random random =
+        new Random();
+
     private const int CantidadMovimiento = 2;
 
-    private enum TipoEfecto{
+    public int UltimoMovimiento
+    {
+        get;
+        private set;
+    }
+
+    public bool UltimoEfectoFuePenalizacion
+    {
+        get;
+        private set;
+    }
+
+    private enum TipoEfecto
+    {
         Avanzar,
         Retroceder,
         Penalizacion
@@ -19,45 +34,89 @@ public class CasilleroEspecial : CasilleroBase
         TipoEfecto.Penalizacion
     };
 
-
-    public CasilleroEspecial(int id,List<int> siguientesIds): base(id, siguientesIds){
+    public CasilleroEspecial(
+        int id,
+        List<int> siguientesIds
+    ) : base(id, siguientesIds)
+    {
         Tipo = TipoCasillero.EfectoEspecial;
     }
 
-
-    public override void EjecutarEfecto(Jugador jugador){
+    public override void EjecutarEfecto(
+        Jugador jugador
+    )
+    {
         if (jugador == null)
             return;
 
-        TipoEfecto efecto = efectosDisponibles[random.Next(efectosDisponibles.Length)];
+        // Reiniciamos el resultado anterior.
+        UltimoMovimiento = 0;
+        UltimoEfectoFuePenalizacion = false;
 
-        switch (efecto){
-            case TipoEfecto.Avanzar:EfectoAvanzar(jugador,CantidadMovimiento);
+        TipoEfecto efecto =
+            efectosDisponibles[
+                random.Next(
+                    efectosDisponibles.Length
+                )
+            ];
 
-            break;
+        switch (efecto)
+        {
+            case TipoEfecto.Avanzar:
 
-            case TipoEfecto.Retroceder:EfectoRetroceder(jugador,CantidadMovimiento);
+                EfectoAvanzar(
+                    jugador,
+                    CantidadMovimiento
+                );
 
-            break;
+                UltimoMovimiento =
+                    CantidadMovimiento;
 
-            case TipoEfecto.Penalizacion:EfectoPerderTurno(jugador);
+                break;
 
-            break;
+            case TipoEfecto.Retroceder:
+
+                EfectoRetroceder(
+                    jugador,
+                    CantidadMovimiento
+                );
+
+                UltimoMovimiento =
+                    -CantidadMovimiento;
+
+                break;
+
+            case TipoEfecto.Penalizacion:
+
+                EfectoPerderTurno(jugador);
+
+                UltimoEfectoFuePenalizacion =
+                    true;
+
+                break;
         }
     }
 
-
-    private void EfectoAvanzar(Jugador jugador,int cantidad){
+    private void EfectoAvanzar(
+        Jugador jugador,
+        int cantidad
+    )
+    {
         jugador.MoverInstantanio(cantidad);
     }
 
-
-    private void EfectoRetroceder(Jugador jugador,int cantidad){
+    private void EfectoRetroceder(
+        Jugador jugador,
+        int cantidad
+    )
+    {
         jugador.MoverInstantanio(-cantidad);
     }
 
-
-    private void EfectoPerderTurno(Jugador jugador){
+    private void EfectoPerderTurno(
+        Jugador jugador
+    )
+    {
         jugador.AplicarPenalizacion();
     }
 }
