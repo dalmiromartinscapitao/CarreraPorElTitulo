@@ -645,8 +645,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.1203003, y: -81.510345}
-  m_SizeDelta: {x: -406.2039, y: -301.4488}
+  m_AnchoredPosition: {x: 0, y: -94}
+  m_SizeDelta: {x: -520, y: -400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &79623015
 MonoBehaviour:
@@ -5788,6 +5788,7 @@ MonoBehaviour:
   dadoVisual: {fileID: 131177604}
   contenedorCasillas: {fileID: 1027830374}
   tableroManager: {fileID: 0}
+  miniJuegoManager: {fileID: 0}
 --- !u!4 &1653040335
 Transform:
   m_ObjectHideFlags: 0

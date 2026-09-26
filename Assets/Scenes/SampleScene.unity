@@ -337,6 +337,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6a219b7ff91df47baa631838ef0dd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fichasVisuales3D: []
+  camaraPrincipalScript: {fileID: 0}
+  dadoVisual: {fileID: 0}
+  contenedorCasillas: {fileID: 0}
+  tableroManager: {fileID: 0}
+  miniJuegoManager: {fileID: 0}
 --- !u!4 &1041854019
 Transform:
   m_ObjectHideFlags: 0
