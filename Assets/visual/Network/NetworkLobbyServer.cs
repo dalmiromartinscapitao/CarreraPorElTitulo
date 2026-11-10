@@ -1,0 +1,247 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Unity.Collections;
+using Unity.Netcode;
+using UnityEngine;
+
+public class NetworkLobbyServer : NetworkBehaviour
+{
+    private readonly NetworkVariable<FixedString512Bytes>
+        resumenSalas =
+            new NetworkVariable<FixedString512Bytes>(
+                new FixedString512Bytes(
+                    "No hay salas creadas."
+                ),
+                NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server
+            );
+
+    private GestorSalas gestorSalas;
+
+    private readonly Dictionary<ulong, string>
+        salaPorCliente =
+            new Dictionary<ulong, string>();
+
+    public event Action<string> ResumenActualizado;
+    public event Action<string> ResultadoRecibido;
+
+    public string ResumenActual =>
+        resumenSalas.Value.ToString();
+
+    public override void OnNetworkSpawn()
+    {
+        resumenSalas.OnValueChanged +=
+            AlCambiarResumenSalas;
+
+        if (IsServer)
+        {
+            gestorSalas = new GestorSalas();
+
+            ActualizarResumenEnServidor();
+        }
+
+        MostrarResumen(
+            resumenSalas.Value.ToString()
+        );
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        resumenSalas.OnValueChanged -=
+            AlCambiarResumenSalas;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SolicitarCrearSalaServerRpc(
+        FixedString32Bytes nombreSala,
+        int maxJugadores,
+        ServerRpcParams parametrosRpc = default
+    )
+    {
+        ulong clientId =
+            parametrosRpc.Receive.SenderClientId;
+
+        if (salaPorCliente.ContainsKey(clientId))
+        {
+            EnviarResultadoACliente(
+                clientId,
+                "Ya pertenecés a una sala."
+            );
+
+            return;
+        }
+
+        Sala nuevaSala =
+            gestorSalas.CrearSala(
+                clientId,
+                nombreSala.ToString(),
+                maxJugadores
+            );
+
+        if (nuevaSala == null)
+        {
+            EnviarResultadoACliente(
+                clientId,
+                "Configuración de sala inválida."
+            );
+
+            return;
+        }
+
+        salaPorCliente.Add(
+            clientId,
+            nuevaSala.Id
+        );
+
+        ActualizarResumenEnServidor();
+
+        EnviarResultadoACliente(
+            clientId,
+            $"Sala creada: {nuevaSala.Id}"
+        );
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SolicitarUnirseSalaServerRpc(FixedString32Bytes idSala,ServerRpcParams parametrosRpc = default){
+        ulong clientId = parametrosRpc.Receive.SenderClientId;
+
+        if (salaPorCliente.ContainsKey(clientId)){
+            EnviarResultadoACliente(clientId,"Ya pertenecés a una sala.");
+            return;
+        }
+
+        Sala sala = gestorSalas.ObtenerSala(idSala.ToString());
+
+        if (sala == null){
+            EnviarResultadoACliente(clientId,"La sala indicada no existe.");
+            return;
+        }
+
+        ResultadoUnionSala resultado = sala.IntentarUnir(clientId);
+
+        if (resultado == ResultadoUnionSala.Jugador){
+            salaPorCliente.Add(clientId,sala.Id);
+
+            ActualizarResumenEnServidor();
+
+            EnviarResultadoACliente(clientId,$"Te uniste a {sala.Id} como jugador.");
+
+            return;
+        }
+
+        if (resultado == ResultadoUnionSala.Espectador){
+            salaPorCliente.Add(clientId,sala.Id);
+
+            ActualizarResumenEnServidor();
+
+            EnviarResultadoACliente(clientId,$"Te uniste a {sala.Id} como espectador.");
+
+            return;
+        }
+
+        if (resultado == ResultadoUnionSala.SalaLlena){
+            EnviarResultadoACliente(clientId,"La sala está llena.");
+
+            return;
+        }
+
+        if (resultado == ResultadoUnionSala.SalaTerminada){
+            EnviarResultadoACliente(clientId,"La sala ya terminó.");
+
+            return;
+        }
+
+        EnviarResultadoACliente(clientId,"Ya estabas dentro de esa sala.");
+    }
+
+    private void ActualizarResumenEnServidor()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        resumenSalas.Value =
+            new FixedString512Bytes(
+                ConstruirResumenSalas()
+            );
+    }
+
+    private string ConstruirResumenSalas()
+    {
+        if (
+            gestorSalas == null ||
+            gestorSalas.Salas.Count == 0
+        )
+        {
+            return "No hay salas creadas.";
+        }
+
+        StringBuilder resumen =
+            new StringBuilder();
+
+        foreach (Sala sala in gestorSalas.Salas)
+        {
+            resumen.Append(
+                $"{sala.Id} | {sala.Nombre} | "
+            );
+
+            resumen.Append(
+                $"{sala.Jugadores.Count}/" +
+                $"{sala.MaxJugadores} jugadores | "
+            );
+
+            resumen.AppendLine(
+                sala.Estado.ToString()
+            );
+        }
+
+        return resumen.ToString();
+    }
+
+    private void EnviarResultadoACliente(
+        ulong clientId,
+        string mensaje)
+    {
+        ClientRpcParams parametrosCliente =
+            new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds =
+                        new ulong[] { clientId }
+                }
+            };
+
+        RecibirResultadoClientRpc(
+            new FixedString128Bytes(mensaje),
+            parametrosCliente
+        );
+    }
+
+    [ClientRpc]
+    private void RecibirResultadoClientRpc(
+        FixedString128Bytes mensaje,
+        ClientRpcParams parametrosRpc = default
+    )
+    {
+        ResultadoRecibido?.Invoke(
+            mensaje.ToString()
+        );
+    }
+
+    private void AlCambiarResumenSalas(
+        FixedString512Bytes anterior,
+        FixedString512Bytes actual)
+    {
+        MostrarResumen(actual.ToString());
+    }
+
+    private void MostrarResumen(
+        string resumen)
+    {
+        ResumenActualizado?.Invoke(resumen);
+    }
+}
