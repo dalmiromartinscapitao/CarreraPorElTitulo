@@ -156,6 +156,38 @@ public class NetworkLobbyServer : NetworkBehaviour
         EnviarResultadoACliente(clientId,"Ya estabas dentro de esa sala.");
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SolicitarIniciarPartidaServerRpc(ServerRpcParams parametrosRpc = default){
+        ulong clientId = parametrosRpc.Receive.SenderClientId;
+
+        if (!salaPorCliente.TryGetValue(clientId,out string idSala)){
+            EnviarResultadoACliente(clientId,"No pertenecés a ninguna sala.");
+
+        return;
+        }
+
+        Sala sala = gestorSalas.ObtenerSala(idSala);
+
+        if (sala == null){
+            EnviarResultadoACliente(clientId,"La sala no existe.");
+
+        return;
+        }
+
+        bool inicioCorrecto = sala.IntentarIniciar(clientId);
+
+        if (!inicioCorrecto){
+            EnviarResultadoACliente(clientId,"Solo el creador puede iniciar " +
+            "una sala con al menos dos jugadores.");
+
+        return;
+        }
+
+        ActualizarResumenEnServidor();
+
+        EnviarResultadoACliente(clientId,$"La partida de {sala.Id} comenzó.");
+    }
+
     private void ActualizarResumenEnServidor()
     {
         if (!IsServer)
@@ -184,18 +216,16 @@ public class NetworkLobbyServer : NetworkBehaviour
 
         foreach (Sala sala in gestorSalas.Salas)
         {
-            resumen.Append(
-                $"{sala.Id} | {sala.Nombre} | "
-            );
+            resumen.Append($"{sala.Id} | {sala.Nombre} | ");
 
-            resumen.Append(
-                $"{sala.Jugadores.Count}/" +
-                $"{sala.MaxJugadores} jugadores | "
-            );
+            resumen.Append($"{sala.Jugadores.Count}/" +
+                $"{sala.MaxJugadores} jugadores | ");
 
-            resumen.AppendLine(
-                sala.Estado.ToString()
-            );
+            resumen.AppendLine(sala.Estado.ToString());
+
+            resumen.Append($"{sala.Estado} | ");
+
+            resumen.AppendLine($"{sala.Espectadores.Count} espectadores");
         }
 
         return resumen.ToString();

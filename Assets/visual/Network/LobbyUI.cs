@@ -13,6 +13,7 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textoResultadoLobby;
     [SerializeField] private TMP_InputField campoIdSala;
     [SerializeField] private Button botonUnirseSala;
+    [SerializeField] private Button botonIniciarSala;
 
     private NetworkLobbyServer lobbyServidor;
 
@@ -35,7 +36,11 @@ public class LobbyUI : MonoBehaviour
         );
 
         botonUnirseSala.onClick.AddListener(
-        SolicitarUnirseSala
+            SolicitarUnirseSala
+        );
+
+        botonIniciarSala.onClick.AddListener(
+            SolicitarIniciarPartida
         );
 
         lobbyServidor.ResumenActualizado +=
@@ -134,6 +139,17 @@ public class LobbyUI : MonoBehaviour
 
         lobbyServidor.SolicitarUnirseSalaServerRpc(new FixedString32Bytes(idSala.ToUpper()));
     }
+
+    private void SolicitarIniciarPartida(){
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.IsClient){
+            MostrarResultado("Primero creá un host o uníte como cliente.");
+
+        return;
+    }
+
+    lobbyServidor.SolicitarIniciarPartidaServerRpc();
+}
 
     private void MostrarResumen(
         string resumen)
