@@ -397,6 +397,47 @@ public class PartidaServidor
             PreguntaVisible.CrearDesde(preguntaActiva));
     }
 
+    public EventoPartidaServidor
+    ObtenerEstadoActual()
+{
+    if (
+        Fase ==
+        FasePartidaServidor
+            .EsperandoRespuesta &&
+        preguntaActiva != null
+    )
+    {
+        return EventoPartidaServidor.CrearPregunta(
+            "Hay una pregunta pendiente.",
+            ClientIdDelTurno,
+            PreguntaVisible.CrearDesde(
+                preguntaActiva
+            )
+        );
+    }
+
+    if (
+        Fase ==
+        FasePartidaServidor
+            .Terminada
+    )
+    {
+        return EventoPartidaServidor.Crear(
+            TipoEventoPartida.Victoria,
+            "La partida terminó.",
+            0,
+            ClientIdDelTurno
+        );
+    }
+
+    return EventoPartidaServidor.Crear(
+        TipoEventoPartida.TurnoCambiado,
+        "Estado de partida actualizado.",
+        0,
+        ClientIdDelTurno
+    );
+}
+
     private void CambiarTurno()
     {
         indiceJugadorActual++;

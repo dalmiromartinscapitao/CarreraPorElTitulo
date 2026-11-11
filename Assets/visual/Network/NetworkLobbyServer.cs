@@ -4,11 +4,14 @@ using System.Text;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 
 public class NetworkLobbyServer : NetworkBehaviour
 {
+    public event Action<string, string[]>
+    PreguntaRecibida;
 
     [ServerRpc(RequireOwnership = false)]
     public void SolicitarTirarDadoServerRpc(
@@ -209,6 +212,92 @@ public class NetworkLobbyServer : NetworkBehaviour
         );
     }
 
+    [ServerRpc(RequireOwnership = false)]
+public void SolicitarEstadoActualServerRpc(
+    ServerRpcParams parametrosRpc = default
+)
+{
+    ulong clientId =
+        parametrosRpc.Receive.SenderClientId;
+
+    if (
+        !salaPorCliente.TryGetValue(
+            clientId,
+            out string idSala
+        )
+    )
+    {
+        return;
+    }
+
+    Sala sala =
+        gestorSalas.ObtenerSala(idSala);
+
+    if (
+        sala == null ||
+        sala.Estado != EstadoSala.EnJuego
+    )
+    {
+        return;
+    }
+
+    if (
+        !partidasPorSala.TryGetValue(
+            idSala,
+            out PartidaServidor partida
+        )
+    )
+    {
+        return;
+    }
+
+    EnviarEstadoPartidaASala(
+        sala,
+        partida,
+        partida.ObtenerEstadoActual()
+    );
+}
+
+private void CargarJuegoParaSala(
+    Sala sala)
+{
+    List<ulong> destinatarios =
+        new List<ulong>();
+
+    destinatarios.AddRange(sala.Jugadores);
+    destinatarios.AddRange(sala.Espectadores);
+
+    ClientRpcParams parametrosCliente =
+        new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds =
+                    destinatarios.ToArray()
+            }
+        };
+
+    CargarJuegoClientRpc(
+        new FixedString32Bytes(sala.Id),
+        parametrosCliente
+    );
+}
+
+[ClientRpc]
+private void CargarJuegoClientRpc(
+    FixedString32Bytes idSala,
+    ClientRpcParams parametrosRpc = default
+)
+{
+    SesionRedCliente.EstablecerSala(
+        idSala.ToString()
+    );
+
+    SceneManager.LoadScene(
+        "JuegoRed"
+    );
+}
+
 
     [ServerRpc(RequireOwnership = false)]
     public void SolicitarUnirseSalaServerRpc(FixedString32Bytes idSala,ServerRpcParams parametrosRpc = default){
@@ -318,9 +407,12 @@ public class NetworkLobbyServer : NetworkBehaviour
             partida.ClientIdDelTurno)
         );
 
+
         ActualizarResumenEnServidor();
 
         EnviarResultadoACliente(clientId,$"La partida de {sala.Id} comenzó.");
+        
+        CargarJuegoParaSala(sala);
     }
 
     private void ActualizarResumenEnServidor()
@@ -398,6 +490,18 @@ public class NetworkLobbyServer : NetworkBehaviour
         string estado = ConstruirEstadoPartida(partida,evento);
 
         RecibirEstadoPartidaClientRpc(new FixedString512Bytes(estado),partida.ClientIdDelTurno,parametrosCliente);
+
+        if (
+    evento.Tipo ==
+    TipoEventoPartida.PreguntaPendiente &&
+    evento.Pregunta != null
+)
+{
+    EnviarPreguntaACliente(
+        partida.ClientIdDelTurno,
+        evento.Pregunta
+    );
+}
     }
 
     private string ConstruirEstadoPartida(PartidaServidor partida,EventoPartidaServidor evento){
@@ -430,6 +534,127 @@ public class NetworkLobbyServer : NetworkBehaviour
     
         EstadoPartidaRecibido?.Invoke(estado.ToString(),clientIdDelTurno);
     }
+
+    private void EnviarPreguntaACliente(
+    ulong clientId,
+    PreguntaVisible pregunta)
+{
+    ClientRpcParams parametrosCliente =
+        new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds =
+                    new ulong[] { clientId }
+            }
+        };
+
+    RecibirPreguntaClientRpc(
+        new FixedString128Bytes(
+            pregunta.Texto
+        ),
+        new FixedString128Bytes(
+            pregunta.Opciones[0]
+        ),
+        new FixedString128Bytes(
+            pregunta.Opciones[1]
+        ),
+        new FixedString128Bytes(
+            pregunta.Opciones[2]
+        ),
+        new FixedString128Bytes(
+            pregunta.Opciones[3]
+        ),
+        parametrosCliente
+    );
+}
+
+[ClientRpc]
+private void RecibirPreguntaClientRpc(
+    FixedString128Bytes texto,
+    FixedString128Bytes opcion0,
+    FixedString128Bytes opcion1,
+    FixedString128Bytes opcion2,
+    FixedString128Bytes opcion3,
+    ClientRpcParams parametrosRpc = default
+)
+{
+    PreguntaRecibida?.Invoke(
+        texto.ToString(),
+        new string[]
+        {
+            opcion0.ToString(),
+            opcion1.ToString(),
+            opcion2.ToString(),
+            opcion3.ToString()
+        }
+    );
+}
+
+[ServerRpc(RequireOwnership = false)]
+public void SolicitarResponderPreguntaServerRpc(
+    int opcionSeleccionada,
+    ServerRpcParams parametrosRpc = default
+)
+{
+    ulong clientId =
+        parametrosRpc.Receive.SenderClientId;
+
+    if (
+        !salaPorCliente.TryGetValue(
+            clientId,
+            out string idSala
+        )
+    )
+    {
+        EnviarResultadoACliente(
+            clientId,
+            "No pertenecés a una sala."
+        );
+
+        return;
+    }
+
+    if (
+        !partidasPorSala.TryGetValue(
+            idSala,
+            out PartidaServidor partida
+        )
+    )
+    {
+        EnviarResultadoACliente(
+            clientId,
+            "No existe una partida activa."
+        );
+
+        return;
+    }
+
+    Sala sala =
+        gestorSalas.ObtenerSala(idSala);
+
+    EventoPartidaServidor evento =
+        partida.SolicitarRespuesta(
+            clientId,
+            opcionSeleccionada
+        );
+
+    if (!evento.EsValido)
+    {
+        EnviarResultadoACliente(
+            clientId,
+            evento.Mensaje
+        );
+
+        return;
+    }
+
+    EnviarEstadoPartidaASala(
+        sala,
+        partida,
+        evento
+    );
+}
 
     [ClientRpc]
     private void RecibirResultadoClientRpc(

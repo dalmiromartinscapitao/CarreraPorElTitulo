@@ -23,4 +23,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PruebaRed.unity
     guid: 230aae4b32674b348a49cc5663b8f605
+  - enabled: 0
+    path: Assets/Scenes/JuegoRed.unity
+    guid: e1e7cddc0deee6541802e7fad7b88e69
+  - enabled: 0
+    path: Assets/Scenes/123.unity
+    guid: 219391774b5bdee4181caeaaab06c414
+  - enabled: 1
+    path: Assets/Scenes/LobbyMultijugador.unity
+    guid: 2d2370cc1821afe4b861264b7f8d8f0a
   m_configObjects: {}
