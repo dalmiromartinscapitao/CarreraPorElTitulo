@@ -5,8 +5,87 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+
+
 public class NetworkLobbyServer : NetworkBehaviour
 {
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SolicitarTirarDadoServerRpc(
+    ServerRpcParams parametrosRpc = default
+)
+{
+    ulong clientId =
+        parametrosRpc.Receive.SenderClientId;
+
+    if (
+        !salaPorCliente.TryGetValue(
+            clientId,
+            out string idSala
+        )
+    )
+    {
+        EnviarResultadoACliente(
+            clientId,
+            "No pertenecés a una sala."
+        );
+
+        return;
+    }
+
+    Sala sala =
+        gestorSalas.ObtenerSala(idSala);
+
+    if (
+        sala == null ||
+        sala.Estado != EstadoSala.EnJuego
+    )
+    {
+        EnviarResultadoACliente(
+            clientId,
+            "La partida no está en curso."
+        );
+
+        return;
+    }
+
+    if (
+        !partidasPorSala.TryGetValue(
+            idSala,
+            out PartidaServidor partida
+        )
+    )
+    {
+        EnviarResultadoACliente(
+            clientId,
+            "No existe estado de partida."
+        );
+
+        return;
+    }
+
+    EventoPartidaServidor evento =
+        partida.SolicitarTirarDado(clientId);
+
+    if (!evento.EsValido)
+    {
+        EnviarResultadoACliente(
+            clientId,
+            evento.Mensaje
+        );
+
+        return;
+    }
+
+    EnviarEstadoPartidaASala(
+        sala,
+        partida,
+        evento
+    );
+}
+
+    public event Action<string, ulong> EstadoPartidaRecibido;
+
     private readonly NetworkVariable<FixedString512Bytes>
         resumenSalas =
             new NetworkVariable<FixedString512Bytes>(
@@ -18,6 +97,16 @@ public class NetworkLobbyServer : NetworkBehaviour
             );
 
     private GestorSalas gestorSalas;
+
+    [Header("Configuración de Gameplay")]
+    [SerializeField] private TextAsset archivoPreguntas;
+    [SerializeField] private int cantidadCasilleros = 28;
+
+    private BancoPreguntas bancoPreguntas;
+
+    private readonly Dictionary<string, PartidaServidor>
+    partidasPorSala =
+        new Dictionary<string, PartidaServidor>();
 
     private readonly Dictionary<ulong, string>
         salaPorCliente =
@@ -34,9 +123,10 @@ public class NetworkLobbyServer : NetworkBehaviour
         resumenSalas.OnValueChanged +=
             AlCambiarResumenSalas;
 
-        if (IsServer)
-        {
+        if (IsServer){
             gestorSalas = new GestorSalas();
+
+            CargarPreguntasDelServidor();
 
             ActualizarResumenEnServidor();
         }
@@ -44,6 +134,23 @@ public class NetworkLobbyServer : NetworkBehaviour
         MostrarResumen(
             resumenSalas.Value.ToString()
         );
+    }
+
+    private void CargarPreguntasDelServidor(){
+        if (archivoPreguntas == null){
+            Debug.LogError("[NetworkLobbyServer] Falta Preguntas.json.");
+
+        return;
+        }
+
+        bancoPreguntas = JsonUtility.FromJson<BancoPreguntas>(archivoPreguntas.text);
+
+        if (bancoPreguntas == null ||
+            bancoPreguntas.preguntas == null ||
+            bancoPreguntas.preguntas.Length == 0){
+
+                Debug.LogError("[NetworkLobbyServer] El banco de preguntas es inválido.");
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -174,14 +281,42 @@ public class NetworkLobbyServer : NetworkBehaviour
         return;
         }
 
-        bool inicioCorrecto = sala.IntentarIniciar(clientId);
+        if (bancoPreguntas == null || bancoPreguntas.preguntas == null || bancoPreguntas.preguntas.Length == 0){
+            EnviarResultadoACliente(clientId,"No hay preguntas configuradas en el servidor.");
 
-        if (!inicioCorrecto){
-            EnviarResultadoACliente(clientId,"Solo el creador puede iniciar " +
-            "una sala con al menos dos jugadores.");
+            return;
+        }
+
+        PartidaServidor partida;
+
+        try{
+            partida = new PartidaServidor(ConfiguracionPartida.Crear(ModoPartida.Normal),
+            sala.Jugadores,
+            bancoPreguntas.preguntas,
+            cantidadCasilleros);
+        }
+
+        catch (Exception excepcion){
+            EnviarResultadoACliente(clientId,$"No se pudo crear la partida: " + $"{excepcion.Message}");
 
         return;
         }
+
+        bool inicioCorrecto = sala.IntentarIniciar(clientId);
+
+        if (!inicioCorrecto){
+            EnviarResultadoACliente(clientId,"Solo el creador puede iniciar " + "una sala con al menos dos jugadores.");
+
+        return;
+        }
+
+        partidasPorSala.Add(sala.Id,partida);
+
+        EnviarEstadoPartidaASala(sala,partida,EventoPartidaServidor.Crear(TipoEventoPartida.TurnoCambiado,
+            "La partida comenzó.",
+            0,
+            partida.ClientIdDelTurno)
+        );
 
         ActualizarResumenEnServidor();
 
@@ -214,18 +349,13 @@ public class NetworkLobbyServer : NetworkBehaviour
         StringBuilder resumen =
             new StringBuilder();
 
-        foreach (Sala sala in gestorSalas.Salas)
-        {
-            resumen.Append($"{sala.Id} | {sala.Nombre} | ");
-
-            resumen.Append($"{sala.Jugadores.Count}/" +
-                $"{sala.MaxJugadores} jugadores | ");
-
-            resumen.AppendLine(sala.Estado.ToString());
-
-            resumen.Append($"{sala.Estado} | ");
-
-            resumen.AppendLine($"{sala.Espectadores.Count} espectadores");
+        foreach (Sala sala in gestorSalas.Salas){
+            resumen.AppendLine(
+            $"{sala.Id} | {sala.Nombre} | " +
+            $"{sala.Jugadores.Count}/" +
+            $"{sala.MaxJugadores} jugadores | " +
+            $"{sala.Estado} | " +
+            $"{sala.Espectadores.Count} espectadores");
         }
 
         return resumen.ToString();
@@ -249,6 +379,56 @@ public class NetworkLobbyServer : NetworkBehaviour
             new FixedString128Bytes(mensaje),
             parametrosCliente
         );
+    }
+
+    private void EnviarEstadoPartidaASala(Sala sala,PartidaServidor partida,EventoPartidaServidor evento){
+        
+        List<ulong> destinatarios = new List<ulong>();
+
+        destinatarios.AddRange(sala.Jugadores);
+        destinatarios.AddRange(sala.Espectadores);
+
+        ClientRpcParams parametrosCliente = new ClientRpcParams{
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = destinatarios.ToArray()
+            }
+        };
+
+        string estado = ConstruirEstadoPartida(partida,evento);
+
+        RecibirEstadoPartidaClientRpc(new FixedString512Bytes(estado),partida.ClientIdDelTurno,parametrosCliente);
+    }
+
+    private string ConstruirEstadoPartida(PartidaServidor partida,EventoPartidaServidor evento){
+        StringBuilder estado = new StringBuilder();
+
+        estado.AppendLine(evento.Mensaje);
+
+        estado.AppendLine($"Fase: {partida.Fase}");
+
+        estado.AppendLine($"Turno: Cliente {partida.ClientIdDelTurno}");
+
+        for (int i = 0;i < partida.Jugadores.Count;i++){
+        
+            Jugador jugador = partida.Jugadores[i];
+
+            estado.AppendLine(
+                $"{jugador.Nombre} | " +
+                $"Casillero: " +
+                $"{jugador.PosicionActualId + 1} | " +
+                $"Vuelta: {jugador.RondaActual} | " +
+                $"Correctas: " +
+                $"{jugador.RespuestasCorrectas}");
+        }
+
+        return estado.ToString();
+    }
+
+    [ClientRpc]
+    private void RecibirEstadoPartidaClientRpc(FixedString512Bytes estado,ulong clientIdDelTurno,ClientRpcParams parametrosRpc = default){
+    
+        EstadoPartidaRecibido?.Invoke(estado.ToString(),clientIdDelTurno);
     }
 
     [ClientRpc]

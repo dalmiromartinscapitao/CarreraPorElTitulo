@@ -14,6 +14,8 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private TMP_InputField campoIdSala;
     [SerializeField] private Button botonUnirseSala;
     [SerializeField] private Button botonIniciarSala;
+    [SerializeField] private Button botonTirarDado;
+    [SerializeField] private TextMeshProUGUI textoEstadoPartida;
 
     private NetworkLobbyServer lobbyServidor;
 
@@ -43,6 +45,15 @@ public class LobbyUI : MonoBehaviour
             SolicitarIniciarPartida
         );
 
+        botonTirarDado.onClick.AddListener(
+            SolicitarTirarDado
+        );
+
+        botonTirarDado.interactable = false;
+
+        lobbyServidor.EstadoPartidaRecibido +=
+        ActualizarEstadoPartida;
+
         lobbyServidor.ResumenActualizado +=
             MostrarResumen;
 
@@ -66,6 +77,9 @@ public class LobbyUI : MonoBehaviour
 
         lobbyServidor.ResultadoRecibido -=
             MostrarResultado;
+
+        lobbyServidor.EstadoPartidaRecibido -=
+            ActualizarEstadoPartida;
     }
 
     private void SolicitarCrearSala()
@@ -149,6 +163,25 @@ public class LobbyUI : MonoBehaviour
     }
 
     lobbyServidor.SolicitarIniciarPartidaServerRpc();
+}
+
+private void SolicitarTirarDado()
+{
+    lobbyServidor.SolicitarTirarDadoServerRpc();
+}
+
+private void ActualizarEstadoPartida(
+    string estado,
+    ulong clientIdDelTurno)
+{
+    textoEstadoPartida.text = estado;
+
+    bool esMiTurno =
+        NetworkManager.Singleton != null &&
+        NetworkManager.Singleton.LocalClientId ==
+        clientIdDelTurno;
+
+    botonTirarDado.interactable = esMiTurno;
 }
 
     private void MostrarResumen(
