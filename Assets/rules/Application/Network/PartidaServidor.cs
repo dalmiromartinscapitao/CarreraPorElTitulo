@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 
@@ -9,144 +10,128 @@ public class PartidaServidor
     private readonly List<Jugador> jugadores;
     private readonly List<ulong> clientIds;
     private readonly Dictionary<ulong, int> indiceJugadorPorClientId;
+
     private readonly Random random = new Random();
     private readonly IReadOnlyList<PreguntaData> bancoPreguntas;
+
     private PreguntaData preguntaActiva;
     private int indiceJugadorActual;
 
-    public FasePartidaServidor Fase
+    public FasePartidaServidor Fase { get; private set; }
+
+    public IReadOnlyList<Jugador> Jugadores => jugadores;
+
+    public ulong ClientIdDelTurno => clientIds[indiceJugadorActual];
+
+    public PreguntaVisible ObtenerPreguntaPendiente()
     {
-        get;
-        private set;
+        if (preguntaActiva == null)
+            return null;
+
+        return PreguntaVisible.CrearDesde(preguntaActiva);
     }
 
-    public IReadOnlyList<Jugador> Jugadores =>
-        jugadores;
-
-    public ulong ClientIdDelTurno =>
-        clientIds[indiceJugadorActual];
-
-    public PartidaServidor(ConfiguracionPartida configuracionPartida,
+    public PartidaServidor(
+        ConfiguracionPartida configuracionPartida,
         IReadOnlyList<ulong> idsDeClientes,
         IReadOnlyList<PreguntaData> preguntas,
-        int cantidadCasilleros){
+        int cantidadCasilleros)
+    {
         if (configuracionPartida == null)
-        {
-            throw new ArgumentNullException(
-                nameof(configuracionPartida)
-            );
-        }
+            throw new ArgumentNullException(nameof(configuracionPartida));
 
-        if (
-            idsDeClientes == null ||
+        if (idsDeClientes == null ||
             idsDeClientes.Count < 2 ||
-            idsDeClientes.Count > 4
-        )
+            idsDeClientes.Count > 4)
         {
             throw new ArgumentException(
-                "La partida debe tener entre 2 y 4 jugadores."
-            );
+                "La partida debe tener entre 2 y 4 jugadores.");
         }
 
-        if (
-            preguntas == null ||
-            preguntas.Count == 0
-        )
+        if (preguntas == null || preguntas.Count == 0)
         {
-            throw new ArgumentException("La partida requiere al menos una pregunta.");
+            throw new ArgumentException(
+                "La partida requiere al menos una pregunta.");
         }
 
         if (cantidadCasilleros <= 1)
         {
             throw new ArgumentException(
-                "El tablero debe tener al menos 2 casilleros."
-            );
+                "El tablero debe tener al menos 2 casilleros.");
         }
 
         configuracion = configuracionPartida;
         bancoPreguntas = preguntas;
 
-        gestorVueltas =
-            new GestorVueltas(configuracion);
+        gestorVueltas = new GestorVueltas(configuracion);
 
-        tablero =
-            TableroFactory.CrearTablero(
-                cantidadCasilleros
-            );
+        tablero = TableroFactory.CrearTablero(cantidadCasilleros);
 
-        jugadores =
-            new List<Jugador>();
+        jugadores = new List<Jugador>();
+        clientIds = new List<ulong>();
+        indiceJugadorPorClientId = new Dictionary<ulong, int>();
 
-        clientIds =
-            new List<ulong>();
-
-        indiceJugadorPorClientId =
-            new Dictionary<ulong, int>();
-
-        for (
-            int i = 0;
-            i < idsDeClientes.Count;
-            i++
-        )
+        for (int i = 0; i < idsDeClientes.Count; i++)
         {
-            ulong clientId =
-                idsDeClientes[i];
+            ulong clientId = idsDeClientes[i];
 
-            Jugador jugador =
-                new Jugador(
-                    i + 1,
-                    $"Jugador {i + 1}",
-                    configuracion
-                );
+            Jugador jugador = new Jugador(
+                i + 1,
+                $"Jugador {i + 1}",
+                configuracion
+            );
 
             jugadores.Add(jugador);
             clientIds.Add(clientId);
 
-            indiceJugadorPorClientId.Add(
-                clientId,
-                i
-            );
+            indiceJugadorPorClientId.Add(clientId, i);
         }
 
         indiceJugadorActual = 0;
 
-        Fase =
-            FasePartidaServidor.EsperandoDado;
+        Fase = FasePartidaServidor.EsperandoDado;
+
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Partida creada. " +
+            $"Jugadores: {jugadores.Count}. " +
+            $"Casilleros: {tablero.Count}"
+        );
     }
 
-    public EventoPartidaServidor
-        SolicitarTirarDado(
-            ulong clientId)
+    public EventoPartidaServidor SolicitarTirarDado(ulong clientId)
     {
-        if (
-            Fase !=
-            FasePartidaServidor.EsperandoDado
-        )
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Solicitud de dado. " +
+            $"Cliente: {clientId}. " +
+            $"Turno actual: {ClientIdDelTurno}. " +
+            $"Fase: {Fase}"
+        );
+
+        if (Fase != FasePartidaServidor.EsperandoDado)
         {
-            return EventoPartidaServidor
-                .AccionInvalida(
-                    "No es momento de tirar el dado.",
-                    ClientIdDelTurno
-                );
+            return EventoPartidaServidor.AccionInvalida(
+                "No es momento de tirar el dado.",
+                ClientIdDelTurno
+            );
         }
 
         if (clientId != ClientIdDelTurno)
         {
-            return EventoPartidaServidor
-                .AccionInvalida(
-                    "No es tu turno.",
-                    ClientIdDelTurno
-                );
+            return EventoPartidaServidor.AccionInvalida(
+                "No es tu turno.",
+                ClientIdDelTurno
+            );
         }
 
-        Jugador jugador =
-            jugadores[indiceJugadorActual];
+        Jugador jugador = jugadores[indiceJugadorActual];
 
         if (jugador.DebeRepetirPreguntas)
         {
-            Fase =
-                FasePartidaServidor
-                    .EsperandoRespuesta;
+            UnityEngine.Debug.Log(
+                "[PARTIDA SERVIDOR] El jugador debe responder una pregunta pendiente."
+            );
+
+            Fase = FasePartidaServidor.EsperandoRespuesta;
 
             return PrepararPregunta(jugador);
         }
@@ -165,86 +150,106 @@ public class PartidaServidor
             );
         }
 
-        int resultadoDado =
-            random.Next(1, 7);
+        int resultadoDado = random.Next(1, 7);
 
         jugador.RegistrarTirada(resultadoDado);
 
-        jugador.Moverse(
-            resultadoDado,
-            tablero.Count
+        jugador.Moverse(resultadoDado, tablero.Count);
+
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] {jugador.Nombre} avanzó. " +
+            $"Dado: {resultadoDado}. " +
+            $"Posición: {jugador.PosicionActualId}"
         );
 
         bool llegoALaMeta =
-            jugador.PosicionActualId >=
-            tablero.Count - 1;
+            jugador.PosicionActualId >= tablero.Count - 1;
 
         if (llegoALaMeta)
         {
-            return ResolverLlegadaAMeta(
-                jugador,
-                resultadoDado
+            return ResolverLlegadaAMeta(jugador, resultadoDado);
+        }
+
+        return ResolverCasillero(jugador, resultadoDado);
+    }
+
+    public EventoPartidaServidor SolicitarRespuesta(
+        ulong clientId,
+        int opcionSeleccionada)
+    {
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Respuesta recibida. " +
+            $"Cliente: {clientId}. Opción: {opcionSeleccionada}"
+        );
+
+        if (Fase != FasePartidaServidor.EsperandoRespuesta)
+        {
+            return EventoPartidaServidor.AccionInvalida(
+                "No hay una pregunta pendiente.",
+                ClientIdDelTurno
             );
         }
 
-        return ResolverCasillero(
-            jugador,
-            resultadoDado
+        if (clientId != ClientIdDelTurno)
+        {
+            return EventoPartidaServidor.AccionInvalida(
+                "No te corresponde responder.",
+                ClientIdDelTurno
+            );
+        }
+
+        if (preguntaActiva == null ||
+            opcionSeleccionada < 0 ||
+            opcionSeleccionada >= preguntaActiva.opciones.Length)
+        {
+            return EventoPartidaServidor.AccionInvalida(
+                "La opción indicada no es válida.",
+                ClientIdDelTurno
+            );
+        }
+
+        Jugador jugador = jugadores[indiceJugadorActual];
+
+        bool respuestaCorrecta = jugador.ResponderPregunta(
+            opcionSeleccionada,
+            preguntaActiva.indiceCorrecta
+        );
+
+        preguntaActiva = null;
+
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Respuesta procesada. " +
+            $"Correcta: {respuestaCorrecta}"
+        );
+
+        bool estaEnLaMeta =
+            jugador.PosicionActualId >= tablero.Count - 1;
+
+        if (jugador.DebeRepetirPreguntas || estaEnLaMeta)
+        {
+            return ResolverLlegadaAMeta(jugador, 0);
+        }
+
+        CambiarTurno();
+
+        return EventoPartidaServidor.Crear(
+            TipoEventoPartida.TurnoCambiado,
+            respuestaCorrecta
+                ? $"{jugador.Nombre} respondió correctamente."
+                : $"{jugador.Nombre} respondió incorrectamente.",
+            0,
+            ClientIdDelTurno
         );
     }
 
-    public EventoPartidaServidor
-        SolicitarRespuesta(ulong clientId,int opcionSeleccionada){
-            if (Fase != FasePartidaServidor.EsperandoRespuesta){
-                return EventoPartidaServidor.AccionInvalida("No hay una pregunta pendiente.",
-                ClientIdDelTurno);
-            }
-
-            if (clientId != ClientIdDelTurno){
-                return EventoPartidaServidor.AccionInvalida("No te corresponde responder.",
-                ClientIdDelTurno);
-            }
-
-            if (preguntaActiva == null || opcionSeleccionada < 0 || opcionSeleccionada >= preguntaActiva.opciones.Length){
-                return EventoPartidaServidor.AccionInvalida("La opción indicada no es válida.",
-                ClientIdDelTurno);
-            }
-
-            Jugador jugador = jugadores[indiceJugadorActual];
-
-            bool respuestaCorrecta = jugador.ResponderPregunta(opcionSeleccionada,preguntaActiva.indiceCorrecta);
-
-            preguntaActiva = null;
-
-            bool estaEnLaMeta = jugador.PosicionActualId >= tablero.Count - 1;
-
-            if (jugador.DebeRepetirPreguntas || estaEnLaMeta){
-                return ResolverLlegadaAMeta(jugador,0);
-            }
-
-            CambiarTurno();
-
-            return EventoPartidaServidor.Crear(TipoEventoPartida.TurnoCambiado,respuestaCorrecta
-                ? $"{jugador.Nombre} respondió correctamente."
-                : $"{jugador.Nombre} respondió incorrectamente.",
-                0,
-                ClientIdDelTurno);
-    }
-
-    private EventoPartidaServidor
-        ResolverLlegadaAMeta(
-            Jugador jugador,
-            int resultadoDado)
+    private EventoPartidaServidor ResolverLlegadaAMeta(
+        Jugador jugador,
+        int resultadoDado)
     {
         ResultadoVuelta resultado =
-            gestorVueltas.ResolverLlegadaMeta(
-                jugador
-            );
+            gestorVueltas.ResolverLlegadaMeta(jugador);
 
-        if (
-            resultado ==
-            ResultadoVuelta.NecesitaPreguntas
-        )
+        if (resultado == ResultadoVuelta.NecesitaPreguntas)
         {
             CambiarTurno();
 
@@ -256,15 +261,11 @@ public class PartidaServidor
             );
         }
 
-        if (
-            resultado ==
-            ResultadoVuelta.Gano
-        )
+        if (resultado == ResultadoVuelta.Gano)
         {
             jugador.MarcarComoGanador();
 
-            Fase =
-                FasePartidaServidor.Terminada;
+            Fase = FasePartidaServidor.Terminada;
 
             return EventoPartidaServidor.Crear(
                 TipoEventoPartida.Victoria,
@@ -284,20 +285,20 @@ public class PartidaServidor
         );
     }
 
-    private EventoPartidaServidor
-        ResolverCasillero(
-            Jugador jugador,
-            int resultadoDado)
+    private EventoPartidaServidor ResolverCasillero(
+        Jugador jugador,
+        int resultadoDado)
     {
-        CasilleroBase casillero =
-            tablero.Find(
-                item =>
-                    item.Id ==
-                    jugador.PosicionActualId
-            );
+        CasilleroBase casillero = tablero.Find(
+            item => item.Id == jugador.PosicionActualId
+        );
 
         if (casillero == null)
         {
+            UnityEngine.Debug.LogError(
+                "[PARTIDA SERVIDOR] No se encontró el casillero."
+            );
+
             CambiarTurno();
 
             return EventoPartidaServidor.Crear(
@@ -308,12 +309,14 @@ public class PartidaServidor
             );
         }
 
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Casillero detectado. " +
+            $"ID: {casillero.Id}. Tipo: {casillero.Tipo}"
+        );
+
         casillero.EjecutarEfecto(jugador);
 
-        if (
-            casillero.Tipo ==
-            TipoCasillero.EfectoEspecial
-        )
+        if (casillero.Tipo == TipoCasillero.EfectoEspecial)
         {
             AjustarPosicionAlTablero(jugador);
 
@@ -327,36 +330,39 @@ public class PartidaServidor
             );
         }
 
-        if (
-            casillero.Tipo ==
-            TipoCasillero.Pregunta
-        )
+        if (casillero.Tipo == TipoCasillero.Pregunta)
         {
-            Fase =
-                FasePartidaServidor
-                    .EsperandoRespuesta;
+            UnityEngine.Debug.Log(
+                "[PARTIDA SERVIDOR] ¡CASILLERO DE PREGUNTA DETECTADO!"
+            );
+
+            Fase = FasePartidaServidor.EsperandoRespuesta;
 
             return PrepararPregunta(jugador);
         }
 
-        if (
-            casillero.Tipo ==
-            TipoCasillero.Juego
-        )
+        // MINIJUEGO: por ahora se omite y se pasa al siguiente jugador.
+        if (casillero.Tipo == TipoCasillero.Juego)
         {
-            Fase =
-                FasePartidaServidor
-                    .EsperandoMinijuego;
+            UnityEngine.Debug.Log(
+                "[PARTIDA SERVIDOR] El jugador cayó en un minijuego. " +
+                "Se omite porque todavía no está implementado."
+            );
+
+            // No se activa EsperandoMinijuego.
+            // Se avanza directamente al siguiente turno.
+            CambiarTurno();
 
             return EventoPartidaServidor.Crear(
                 TipoEventoPartida.MinijuegoPendiente,
-                $"{jugador.Nombre} debe completar un minijuego.",
+                $"{jugador.Nombre} cayó en un minijuego. " +
+                "¡Próximamente! Continúa el siguiente jugador.",
                 resultadoDado,
                 ClientIdDelTurno
             );
         }
 
-
+        // Casillero normal.
         CambiarTurno();
 
         return EventoPartidaServidor.Crear(
@@ -367,90 +373,112 @@ public class PartidaServidor
         );
     }
 
-    private void AjustarPosicionAlTablero(
-        Jugador jugador)
+    private void AjustarPosicionAlTablero(Jugador jugador)
     {
-        int ultimaPosicion =
-            tablero.Count - 1;
+        int ultimaPosicion = tablero.Count - 1;
 
-        if (
-            jugador.PosicionActualId >
-            ultimaPosicion
-        )
+        if (jugador.PosicionActualId > ultimaPosicion)
         {
-            jugador.EstablecerPosicion(
-                ultimaPosicion
-            );
+            jugador.EstablecerPosicion(ultimaPosicion);
         }
     }
 
-    private EventoPartidaServidor PrepararPregunta(Jugador jugador){
+    private EventoPartidaServidor PrepararPregunta(Jugador jugador)
+    {
+        UnityEngine.Debug.Log(
+            "[PARTIDA SERVIDOR] Preparando pregunta..."
+        );
+
+        if (bancoPreguntas == null || bancoPreguntas.Count == 0)
+        {
+            UnityEngine.Debug.LogError(
+                "[PARTIDA SERVIDOR] El banco de preguntas está vacío."
+            );
+
+            return EventoPartidaServidor.AccionInvalida(
+                "No hay preguntas disponibles.",
+                ClientIdDelTurno
+            );
+        }
 
         int indicePregunta = random.Next(bancoPreguntas.Count);
 
         preguntaActiva = bancoPreguntas[indicePregunta];
 
+        if (preguntaActiva == null)
+        {
+            UnityEngine.Debug.LogError(
+                "[PARTIDA SERVIDOR] La pregunta seleccionada es nula."
+            );
+
+            return EventoPartidaServidor.AccionInvalida(
+                "No se pudo cargar la pregunta.",
+                ClientIdDelTurno
+            );
+        }
+
         Fase = FasePartidaServidor.EsperandoRespuesta;
 
-        return EventoPartidaServidor.CrearPregunta($"{jugador.Nombre} debe responder una pregunta.",
-            ClientIdDelTurno,
-            PreguntaVisible.CrearDesde(preguntaActiva));
-    }
+        PreguntaVisible preguntaVisible =
+            PreguntaVisible.CrearDesde(preguntaActiva);
 
-    public EventoPartidaServidor
-    ObtenerEstadoActual()
-{
-    if (
-        Fase ==
-        FasePartidaServidor
-            .EsperandoRespuesta &&
-        preguntaActiva != null
-    )
-    {
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Pregunta preparada correctamente. " +
+            $"Cliente: {ClientIdDelTurno}. " +
+            $"Índice: {indicePregunta}"
+        );
+
         return EventoPartidaServidor.CrearPregunta(
-            "Hay una pregunta pendiente.",
+            $"{jugador.Nombre} debe responder una pregunta.",
             ClientIdDelTurno,
-            PreguntaVisible.CrearDesde(
-                preguntaActiva
-            )
+            preguntaVisible
         );
     }
 
-    if (
-        Fase ==
-        FasePartidaServidor
-            .Terminada
-    )
+    public EventoPartidaServidor ObtenerEstadoActual()
     {
+        if (Fase == FasePartidaServidor.EsperandoRespuesta &&
+            preguntaActiva != null)
+        {
+            return EventoPartidaServidor.CrearPregunta(
+                "Hay una pregunta pendiente.",
+                ClientIdDelTurno,
+                PreguntaVisible.CrearDesde(preguntaActiva)
+            );
+        }
+
+        if (Fase == FasePartidaServidor.Terminada)
+        {
+            return EventoPartidaServidor.Crear(
+                TipoEventoPartida.Victoria,
+                "La partida terminó.",
+                0,
+                ClientIdDelTurno
+            );
+        }
+
         return EventoPartidaServidor.Crear(
-            TipoEventoPartida.Victoria,
-            "La partida terminó.",
+            TipoEventoPartida.TurnoCambiado,
+            "Estado de partida actualizado.",
             0,
             ClientIdDelTurno
         );
     }
 
-    return EventoPartidaServidor.Crear(
-        TipoEventoPartida.TurnoCambiado,
-        "Estado de partida actualizado.",
-        0,
-        ClientIdDelTurno
-    );
-}
-
     private void CambiarTurno()
     {
         indiceJugadorActual++;
 
-        if (
-            indiceJugadorActual >=
-            jugadores.Count
-        )
+        if (indiceJugadorActual >= jugadores.Count)
         {
             indiceJugadorActual = 0;
         }
 
-        Fase =
-            FasePartidaServidor.EsperandoDado;
+        Fase = FasePartidaServidor.EsperandoDado;
+
+        UnityEngine.Debug.Log(
+            $"[PARTIDA SERVIDOR] Turno cambiado. " +
+            $"Ahora juega: {ClientIdDelTurno}. Fase: {Fase}"
+        );
     }
 }

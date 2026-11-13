@@ -5,25 +5,25 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: 0e7af3fd0dc397b44b1539e47f39e97d
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Reglas.unity
     guid: 5de797e2ed299cb4c8c79a194ccce53a
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Configuracion.unity
     guid: d3a641616d9130645a30003ae11467da
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Juego.unity
     guid: 16074b67becfbff40bebeaa4c0dbea3c
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Victoria.unity
     guid: 0d52fd554cb506e4984bd7e265107a9f
   - enabled: 1
     path: Assets/Scenes/PruebaRed.unity
     guid: 230aae4b32674b348a49cc5663b8f605
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/JuegoRed.unity
     guid: e1e7cddc0deee6541802e7fad7b88e69
   - enabled: 0
