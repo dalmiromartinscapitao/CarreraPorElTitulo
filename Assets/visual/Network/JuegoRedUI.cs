@@ -1,4 +1,3 @@
-
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -126,16 +125,11 @@ public class JuegoRedUI : MonoBehaviour
     private void MostrarPregunta(string texto, string[] opciones)
     {
         Debug.Log("[DIAGNOSTICO] Se ejecutó MostrarPregunta en la interfaz.");
-
-        Debug.Log("[JuegoRedUI] ================================");
         Debug.Log($"[JuegoRedUI] MOSTRANDO PREGUNTA: {texto}");
-        Debug.Log($"[JuegoRedUI] Opciones recibidas: {opciones?.Length ?? 0}");
 
         if (panelPreguntaRed == null)
         {
-            Debug.LogError(
-                "[JuegoRedUI] ERROR: PanelPreguntaRed no está asignado."
-            );
+            Debug.LogError("[JuegoRedUI] ERROR: PanelPreguntaRed no está asignado en el Inspector.");
             return;
         }
 
@@ -143,39 +137,8 @@ public class JuegoRedUI : MonoBehaviour
         if (botonTirarDado != null)
             botonTirarDado.interactable = false;
 
-        // Activar el panel principal.
+        // Activar el panel de preguntas directamente.
         panelPreguntaRed.SetActive(true);
-
-        // Activar el contenedor de preguntas.
-        Transform panelPreguntas =
-            panelPreguntaRed.transform.Find("PanelDePreguntas");
-
-        if (panelPreguntas != null)
-        {
-            panelPreguntas.gameObject.SetActive(true);
-
-            Debug.Log(
-                "[DIAGNOSTICO] PanelDePreguntas activado."
-            );
-
-            // Activar y comprobar todos sus hijos.
-            foreach (Transform hijo in panelPreguntas)
-            {
-                hijo.gameObject.SetActive(true);
-
-                Debug.Log(
-                    $"[DIAGNOSTICO] Hijo: {hijo.name} | " +
-                    $"Activo: {hijo.gameObject.activeSelf}"
-                );
-            }
-        }
-        else
-        {
-            Debug.LogError(
-                "[DIAGNOSTICO] No se encontró PanelDePreguntas. " +
-                "Revisá que sea hijo directo de PanelPreguntaRed."
-            );
-        }
 
         // Mostrar el texto de la pregunta.
         if (textoPreguntaRed != null)
@@ -185,17 +148,12 @@ public class JuegoRedUI : MonoBehaviour
         }
         else
         {
-            Debug.LogError(
-                "[JuegoRedUI] No está asignado TextoPreguntaRed."
-            );
+            Debug.LogError("[JuegoRedUI] No está asignado TextoPreguntaRed.");
         }
 
-        if (botonesOpcionesRed == null ||
-            botonesOpcionesRed.Length == 0)
+        if (botonesOpcionesRed == null || botonesOpcionesRed.Length == 0)
         {
-            Debug.LogError(
-                "[JuegoRedUI] No hay botones de opciones asignados."
-            );
+            Debug.LogError("[JuegoRedUI] No hay botones de opciones asignados.");
             return;
         }
 
@@ -209,10 +167,8 @@ public class JuegoRedUI : MonoBehaviour
 
             int indiceOpcion = i;
 
-            // Activar el botón.
             boton.gameObject.SetActive(true);
 
-            // Obtener el texto del botón.
             TextMeshProUGUI textoBoton =
                 boton.GetComponentInChildren<TextMeshProUGUI>(true);
 
@@ -226,17 +182,12 @@ public class JuegoRedUI : MonoBehaviour
                     textoBoton.text = "";
             }
 
-            // Limpiar listeners anteriores.
             boton.onClick.RemoveAllListeners();
 
-            // Asignar la respuesta correspondiente.
             if (opciones != null && i < opciones.Length)
             {
                 boton.interactable = true;
-
-                boton.onClick.AddListener(
-                    () => ResponderPregunta(indiceOpcion)
-                );
+                boton.onClick.AddListener(() => ResponderPregunta(indiceOpcion));
             }
             else
             {
@@ -244,9 +195,8 @@ public class JuegoRedUI : MonoBehaviour
             }
         }
 
-        // Asegurar que el CanvasGroup permita mostrar e interactuar.
-        CanvasGroup cg =
-            panelPreguntaRed.GetComponent<CanvasGroup>();
+        // Asegurar que el CanvasGroup permita mostrar e interactuar si existe.
+        CanvasGroup cg = panelPreguntaRed.GetComponent<CanvasGroup>();
 
         if (cg != null)
         {
@@ -255,50 +205,17 @@ public class JuegoRedUI : MonoBehaviour
             cg.blocksRaycasts = true;
         }
 
-        // También comprobar si PanelDePreguntas tiene CanvasGroup.
-        if (panelPreguntas != null)
-        {
-            CanvasGroup cgHijo =
-                panelPreguntas.GetComponent<CanvasGroup>();
-
-            if (cgHijo != null)
-            {
-                cgHijo.alpha = 1f;
-                cgHijo.interactable = true;
-                cgHijo.blocksRaycasts = true;
-            }
-        }
-
-        Debug.Log(
-            $"[JuegoRedUI] PanelPreguntaRed activo: " +
-            $"{panelPreguntaRed.activeSelf}"
-        );
-
-        Debug.Log(
-            $"[JuegoRedUI] PanelDePreguntas activo: " +
-            $"{(panelPreguntas != null && panelPreguntas.gameObject.activeSelf)}"
-        );
-
-        Debug.Log(
-            "[JuegoRedUI] Pregunta mostrada correctamente."
-        );
+        Debug.Log("[JuegoRedUI] Pregunta mostrada y configurada correctamente.");
     }
 
     private void ResponderPregunta(int opcionSeleccionada)
     {
-        Debug.Log(
-            $"[JuegoRedUI] Botón de respuesta presionado. " +
-            $"Opción elegida: {opcionSeleccionada}"
-        );
+        Debug.Log($"[JuegoRedUI] Botón de respuesta presionado. Opción elegida: {opcionSeleccionada}");
 
         if (panelPreguntaRed != null)
             panelPreguntaRed.SetActive(false);
 
         if (lobbyServidor != null)
-        {
-            lobbyServidor.SolicitarResponderPreguntaServerRpc(
-                opcionSeleccionada
-            );
-        }
+            lobbyServidor.SolicitarResponderPreguntaServerRpc(opcionSeleccionada);
     }
 }
