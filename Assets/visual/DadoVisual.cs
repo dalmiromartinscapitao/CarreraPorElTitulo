@@ -23,7 +23,7 @@ public class DadoVisual : MonoBehaviour
     private Renderer[] renderersVisuales;
 
     
-    /// 
+    /// ///////
     private void Awake()
     {
         renderersVisuales = GetComponentsInChildren<Renderer>(true);
